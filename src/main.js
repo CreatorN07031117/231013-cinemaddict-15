@@ -13,8 +13,8 @@ import {createPopupComments} from './view/popup-comments.js';
 const ITEMS_IN_FILMS_LIST = 5;
 const ITEMS_IN_EXTRA_LIST = 2;
 const render = (container, template, place) => {
-    container.insertAdjacentHTML(place, template);
-  };
+  container.insertAdjacentHTML(place, template);
+};
 
 const siteHeaderElement = document.querySelector('.header');
 
@@ -39,15 +39,15 @@ const filmsListContainer = sectionFilms.querySelectorAll('.films-list__container
 
 for (let i = 0; i < ITEMS_IN_FILMS_LIST; i++) {
   render(filmsListContainer[0], createFilmCardTemplate(), 'beforeend');
-};
+}
 
 for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
   render(filmsListContainer[1], createFilmCardTemplate(), 'beforeend');
-};
+}
 
 for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
   render(filmsListContainer[2], createFilmCardTemplate(), 'beforeend');
-};
+}
 
 const siteFooterElement = document.querySelector('.footer');
 
