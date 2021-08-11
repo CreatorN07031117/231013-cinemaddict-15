@@ -25,7 +25,6 @@ for (let i = 0; i < commentsList.length; i++) {
   commentsList[i] = generateComment(i)
 }
 
-console.log(films)
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -71,9 +70,10 @@ const siteFooterElement = document.querySelector('.footer');
 
 render(siteFooterElement, createFooterStatictics(), 'beforeend');
 
+const filmToPopup = films[0];
 
-render(siteFooterElement, createFilmsDetailsPopup(films[0]), 'afterend');
+render(siteFooterElement, createFilmsDetailsPopup(filmToPopup), 'afterend');
 
 const filmDetailsPopup = document.querySelector('.film-details');
-render(filmDetailsPopup, createPopupComments(commentsList, films[0].comments), 'beforeend');
+render(filmDetailsPopup, createPopupComments(commentsList, filmToPopup), 'beforeend');
 

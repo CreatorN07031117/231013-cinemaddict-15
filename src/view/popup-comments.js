@@ -10,17 +10,17 @@ const EMOTION_PICTURES = {
 
 const commentTemplate = (review) => {
   //dayjs.extend(LocalizedFormat)
-  const rewievDate = dayjs(review.date).format('M/D/YYYY h:mm A')
+  const reviewDate = dayjs(review.date).format('M/D/YYYY h:mm A')
     
   return `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
              <img src=${EMOTION_PICTURES[review.emotion]} width="55" height="55" alt="emoji-${review.emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${review.comment}</p>
+              <p class="film-details__comment-text">${review.author}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${review.comment}</span>
-                <span class="film-details__comment-day">${rewievDate}</span>
+                <span class="film-details__comment-day">${reviewDate}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
             </div>
@@ -28,22 +28,38 @@ const commentTemplate = (review) => {
 }
 
 
-export const createPopupComments = (reviewList, commentsIdList) => {
-  let commentBlock = new Array(commentsIdList.length).fill();
+export const createPopupComments = (reviewList, film) => {
+  const idList = film.comments;
+  const commentContent = [];
 
-  for (const id of commentsIdList) {
-    const commentId = commentsIdList[id];
-    const commentContent = reviewList[commentId];
-    commentBlock[id] = commentTemplate(commentContent);
+  for (const id of idList) {
+    const commentId = idList[id];
+    commentContent[id] = reviewList[commentId];
+
   }
+  console.log(commentContent);
+  
+  //let commentBlock = commentTemplate(commentContent);
+   /*
+  idList.forEach((item) => {
+    const commentContent = reviewList[item]
+    commentBlock.add(commentTemplate(commentContent))
+  }*/
+
+  /*for (const id of idList) {
+    const commentId = idList[id];
+    const commentContent = reviewList[commentId];
+    console.log(commentId)
+    commentBlock[id] = commentTemplate(commentContent);
+  }*/
 
 
 
   return `<div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
-      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsIdList.length}</span></h3>
+      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${idList.length}</span></h3>
       <ul class="film-details__comments-list">
-        ${commentBlock}
+        //${commentBlock}
       </ul>
 
       <div class="film-details__new-comment">
