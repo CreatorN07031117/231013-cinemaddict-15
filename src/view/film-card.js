@@ -5,17 +5,17 @@ export const createFilmCardTemplate = (film) => {
 
   let watchlistMark = '<button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>';
   if (film.watchlist) {
-    watchlistMark = '<button class="film-card__controls-item film-card__controls-item--add-to-watchlist film-card__controls-item--active" type="button">Add to watchlist</button>'
+    watchlistMark = '<button class="film-card__controls-item film-card__controls-item--add-to-watchlist film-card__controls-item--active" type="button">Add to watchlist</button>';
   }
-  
+
   let markAsWatched = '<button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>';
-  if (film.already_watched) { 
-    markAsWatched = '<button class="film-card__controls-item film-card__controls-item--mark-as-watched film-card__controls-item--active" type="button">Mark as watched</button>'
+  if (film.already_watched) {
+    markAsWatched = '<button class="film-card__controls-item film-card__controls-item--mark-as-watched film-card__controls-item--active" type="button">Mark as watched</button>';
   }
 
   let favoriteMark = '<button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>';
-  if (film.favorite) { 
-    favoriteMark = '<button class="film-card__controls-item film-card__controls-item--favorite film-card__controls-item--active" type="button">Mark as favorite</button>'
+  if (film.favorite) {
+    favoriteMark = '<button class="film-card__controls-item film-card__controls-item--favorite film-card__controls-item--active" type="button">Mark as favorite</button>';
   }
 
 
@@ -28,12 +28,12 @@ export const createFilmCardTemplate = (film) => {
       <span class="film-card__genre">${film.genres[0]}</span>
     </p>
     <img src=${film.poster} alt="" class="film-card__poster">
-    <p class="film-card__description">${film.description}</p>
+    <p class="film-card__description">${film.description.substr(0, 140)}</p>
       <a class="film-card__comments">${film.comments.length} comments</a>
     <div class="film-card__controls">
       ${watchlistMark}
       ${markAsWatched}
       ${favoriteMark}
     </div>
-  </article>`
+  </article>`;
 };

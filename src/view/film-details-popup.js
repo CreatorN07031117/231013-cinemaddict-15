@@ -1,21 +1,26 @@
 import dayjs from 'dayjs';
 
+
 export const createFilmsDetailsPopup = (film) => {
+  const genresList = film.genres;
+  const genreContent = genresList
+    .map((item) => `<span class="film-details__genre">${item}</span>`)
+    .join();
 
   const releaseDate = dayjs(film.realese).format('D MMMM YYYY');
   let watchlistMark = '<button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>';
   if (film.watchlist) {
-    watchlistMark = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>'
+    watchlistMark = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>';
   }
-  
+
   let markAsWatched = '<button type="button" class="film-details__control-button film-details__control-button--watched" id="watched" name="watched">Already watched</button>';
-  if (film.already_watched) { 
-    markAsWatched = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>'
+  if (film.already_watched) {
+    markAsWatched = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>';
   }
 
   let favoriteMark = '<button type="button" class="film-details__control-button film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>';
-  if (film.favorite) { 
-    favoriteMark = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>'
+  if (film.favorite) {
+    favoriteMark = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>';
   }
 
   return `<section class="film-details">
@@ -71,9 +76,8 @@ export const createFilmsDetailsPopup = (film) => {
               <tr class="film-details__row">
                 <td class="film-details__term">Genres</td>
                 <td class="film-details__cell">
-                  <span class="film-details__genre">${film.genres[0]}</span>
-                  <span class="film-details__genre">${film.genres[1]}</span>
-                  <span class="film-details__genre">${film.genres[2]}</span></td>
+                  ${genreContent}
+                </td>
               </tr>
             </table>
   
@@ -91,5 +95,5 @@ export const createFilmsDetailsPopup = (film) => {
       </div>
   
     </form>
-  </section>`
+  </section>`;
 };
