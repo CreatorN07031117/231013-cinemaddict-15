@@ -9,7 +9,7 @@ export const createFilmCardTemplate = (film) => {
   }
 
   let markAsWatched = '<button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>';
-  if (film.already_watched) {
+  if (film.alreadyWatched) {
     markAsWatched = '<button class="film-card__controls-item film-card__controls-item--mark-as-watched film-card__controls-item--active" type="button">Mark as watched</button>';
   }
 
@@ -21,7 +21,7 @@ export const createFilmCardTemplate = (film) => {
 
   return `<article class="film-card">
     <h3 class="film-card__title">${film.title}</h3>
-    <p class="film-card__rating">${film.total_rating}</p>
+    <p class="film-card__rating">${film.totalRating}</p>
     <p class="film-card__info">
       <span class="film-card__year">${releaseYear}</span>
       <span class="film-card__duration">${film.runtime}</span>

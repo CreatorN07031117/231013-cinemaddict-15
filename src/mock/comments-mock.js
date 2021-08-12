@@ -76,12 +76,10 @@ const generateCommentDay = () => {
 };
 
 
-export const generateComment = (reviewId) => {
-  return {
-    id: reviewId,
-    author: generateCommentAuthor(),
-    comment: generateCommentText(),
-    date: generateCommentDay(),
-    emotion: generateEmotion(),
-  };
-};
+export const generateComment = (reviewId) => ({
+  id: reviewId,
+  author: generateCommentAuthor(),
+  comment: generateCommentText(),
+  date: generateCommentDay(),
+  emotion: generateEmotion(),
+});

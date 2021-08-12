@@ -208,8 +208,8 @@ export const generateFilm = (allComments) => {
   return {
     comments: commentsId,
     title: title,
-    alternative_title: title,
-    total_rating: genarateRating(),
+    alternativeTitle: title,
+    totalRating: genarateRating(),
     poster: generatePoster(),
     director: generateName(),
     writers: makeWritersList(),
@@ -219,8 +219,8 @@ export const generateFilm = (allComments) => {
     country: generateFilmCountry(),
     genres: makeGenresList(),
     description: generateDescription(),
-    age_rating: generateAgeRating(),
+    ageRating: generateAgeRating(),
     watchlist: generateUserDetail,
-    already_watched: generateUserDetail,
+    alreadyWatched: generateUserDetail,
     favorite: generateUserDetail};
 };
