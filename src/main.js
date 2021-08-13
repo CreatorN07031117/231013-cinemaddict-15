@@ -19,11 +19,7 @@ const FILM_COUNT_PER_STEP = 5;
 const COMMENTS_COUNT = 50;
 
 const films = new Array(FILM_COUNT).fill().map(() => generateFilm(COMMENTS_COUNT));
-const commentsList = new Array(COMMENTS_COUNT).fill();
-
-for (let i = 0; i < commentsList.length; i++) {
-  commentsList[i] = generateComment(i);
-}
+const commentsList = new Array(COMMENTS_COUNT).fill().map((_,i) => generateComment(i));
 
 
 const render = (container, template, place) => {
@@ -74,30 +70,14 @@ if (films.length > FILM_COUNT_PER_STEP) {
   });
 }
 
-const topRatedList = films.sort((a, b) => {
-  if (a.total_rating > b.total_rating) {
-    return -1;
-  }
-  if (a.total_rating < b.total_rating) {
-    return 1;
-  }
-  return 0;
-});
+const topRatedList = films.sort((a, b) => b.totalRating - a.totalRating);
 
 
 for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
   render(filmsListContainer[1], createFilmCardTemplate(topRatedList[i]), 'beforeend');
 }
 
-const mostCommentedList = films.sort((a, b) => {
-  if (a.comments.length > b.comments.length) {
-    return -1;
-  }
-  if (a.comments.length < b.comments.length) {
-    return 1;
-  }
-  return 0;
-});
+const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
 
 
 for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
