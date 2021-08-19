@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-
+import {createElement} from '../utils.js';
 
 const EMOTION_PICTURES = {
   'smile': './images/emoji/smile.png',
@@ -26,7 +26,7 @@ const commentTemplate = (review) => {
 };
 
 
-export const createPopupComments = (reviewList, film) => {
+const createPopupComments = (reviewList, film) => {
   const commentsIds = film.comments;
   const commentContent = commentsIds
     .map((commentId) => commentTemplate(reviewList[commentId]))
@@ -71,3 +71,27 @@ export const createPopupComments = (reviewList, film) => {
     </section>
   </div> `;
 };
+
+export default class PopupComments {
+  constructor(reviewList, film) {
+    this._film = film;
+    this._reviewList = reviewList;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return  createPopupComments(this._reviewList, this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

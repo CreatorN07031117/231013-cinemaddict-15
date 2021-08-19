@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
+import {createElement} from '../utils.js';
 
-
-export const createFilmsDetailsPopup = (film) => {
+const createFilmsDetailsPopup = (film) => {
   const genresList = film.genres;
   const genreContent = genresList
     .map((item) => `<span class="film-details__genre">${item}</span>`)
@@ -97,3 +97,26 @@ export const createFilmsDetailsPopup = (film) => {
     </form>
   </section>`;
 };
+
+export default class FilmDetailsPopup {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmsDetailsPopup(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

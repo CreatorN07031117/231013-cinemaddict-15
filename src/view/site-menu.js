@@ -1,3 +1,5 @@
+import {createElement} from '../utils.js';
+
 const countFilms = (films) => {
   let whatchlistCounter = 0;
   let favoriteCounter = 0;
@@ -5,7 +7,7 @@ const countFilms = (films) => {
 
   for (const film of films) {
     const watchlist = film.watchlist;
-    const alreadyWatched = film.already_watched;
+    const alreadyWatched = film.alreadyWatched;
     const favorite = film.favorite;
 
     if (watchlist) {
@@ -25,7 +27,7 @@ const countFilms = (films) => {
 };
 
 
-export const createSiteMenuTemplate = (films) => {
+const createSiteMenuTemplate = (films) => {
   const filmsCounter = countFilms(films);
 
   return `<nav class="main-navigation">
@@ -38,3 +40,26 @@ export const createSiteMenuTemplate = (films) => {
     <a href="#stats" class="main-navigation__additional">Stats</a>
   </nav>`;
 };
+
+export default class SiteMenu {
+  constructor(films) {
+    this._films = films;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createSiteMenuTemplate(this._films);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

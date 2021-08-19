@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
+import {createElement} from '../utils.js';
 
-export const createFilmCardTemplate = (film) => {
+const createFilmCardTemplate = (film) => {
   const releaseYear = dayjs(film.realese).format('YYYY');
 
   let watchlistMark = '<button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>';
@@ -37,3 +38,26 @@ export const createFilmCardTemplate = (film) => {
     </div>
   </article>`;
 };
+
+export default class FilmCard {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmCardTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
