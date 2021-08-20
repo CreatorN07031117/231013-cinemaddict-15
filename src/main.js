@@ -64,6 +64,16 @@ const renderFilmCard = (filmsListElement, film, commentList) => {
     bodyElement.classList.add('hide-overflow');
   });
 
+  filmCardComponent.getElement().querySelector('.film-card__title').addEventListener('click', () => {
+    showPopup();
+    bodyElement.classList.add('hide-overflow');
+  });
+
+  filmCardComponent.getElement().querySelector('.film-card__comments').addEventListener('click', () => {
+    showPopup();
+    bodyElement.classList.add('hide-overflow');
+  });
+
   filmDetailsPopupComponent.getElement().querySelector('.film-details__close-btn').addEventListener('click', () => {
     hidePopup();
     bodyElement.classList.remove('hide-overflow');
