@@ -198,7 +198,7 @@ const generateAgeRating = () => {
 };
 
 //Генерация controls
-const generateUserDetail = Boolean(getRandomInteger(0, 1));
+const generateUserDetail = () => Boolean(getRandomInteger(0, 1));
 
 
 export const generateFilm = (allComments) => {
@@ -220,7 +220,7 @@ export const generateFilm = (allComments) => {
     genres: makeGenresList(),
     description: generateDescription(),
     ageRating: generateAgeRating(),
-    watchlist: generateUserDetail,
-    alreadyWatched: generateUserDetail,
-    favorite: generateUserDetail};
+    watchlist: generateUserDetail(),
+    alreadyWatched: generateUserDetail(),
+    favorite: generateUserDetail()};
 };

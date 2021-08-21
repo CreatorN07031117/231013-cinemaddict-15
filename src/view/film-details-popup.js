@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
+import {createElement} from '../utils.js';
 
-
-export const createFilmsDetailsPopup = (film) => {
+const createFilmsDetailsPopup = (film) => {
   const genresList = film.genres;
   const genreContent = genresList
     .map((item) => `<span class="film-details__genre">${item}</span>`)
@@ -23,8 +23,7 @@ export const createFilmsDetailsPopup = (film) => {
     favoriteMark = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>';
   }
 
-  return `<section class="film-details">
-    <form class="film-details__inner" action="" method="get">
+  return `<form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
           <button class="film-details__close-btn" type="button">close</button>
@@ -94,6 +93,28 @@ export const createFilmsDetailsPopup = (film) => {
         </section>
       </div>
   
-    </form>
-  </section>`;
+    </form>`;
 };
+
+export default class FilmDetailsPopup {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmsDetailsPopup(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
