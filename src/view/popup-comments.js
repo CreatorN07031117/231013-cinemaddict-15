@@ -26,10 +26,10 @@ const commentTemplate = (review) => {
 };
 
 
-const createPopupComments = (reviewList, film) => {
+const createPopupComments = (commentsList, film) => {
   const commentsIds = film.comments;
   const commentContent = commentsIds
-    .map((commentId) => commentTemplate(reviewList[commentId]))
+    .map((commentId) => commentTemplate(commentsList[commentId]))
     .join('');
 
   return `<div class="film-details__bottom-container">
@@ -73,14 +73,14 @@ const createPopupComments = (reviewList, film) => {
 };
 
 export default class PopupComments {
-  constructor(reviewList, film) {
+  constructor(commentsList, film) {
     this._film = film;
-    this._reviewList = reviewList;
+    this._commentsList = commentsList;
     this._element = null;
   }
 
   getTemplate() {
-    return  createPopupComments(this._reviewList, this._film);
+    return  createPopupComments(this._commentsList, this._film);
   }
 
   getElement() {
