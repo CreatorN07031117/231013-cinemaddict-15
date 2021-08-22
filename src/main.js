@@ -17,7 +17,7 @@ import {render, RenderPosition} from './utils.js';
 
 
 const ITEMS_IN_EXTRA_LIST = 2;
-const FILM_COUNT = 23;
+const FILM_COUNT = 15;
 const FILM_COUNT_PER_STEP = 5;
 const COMMENTS_COUNT = 50;
 const bodyElement = document.querySelector('body');
@@ -114,42 +114,46 @@ const renderFilmCard = (filmsListElement, film, commentList) => {
   render(filmsListElement, filmCardComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
-for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
-  renderFilmCard(sectionFilmsComponent.getElement().querySelector('.films-list__container'), films[i], commentsList);
-}
+if (films.length > 0) {
+  for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
+    renderFilmCard(sectionFilmsComponent.getElement().querySelector('.films-list__container'), films[i], commentsList);
+  }
 
-if (films.length > FILM_COUNT_PER_STEP) {
-  let renderedFilmCount = FILM_COUNT_PER_STEP;
+  if (films.length > FILM_COUNT_PER_STEP) {
+    let renderedFilmCount = FILM_COUNT_PER_STEP;
 
-  const showMoreBtnComponent = new ShowMoretBtnView();
-  render(sectionFilmsComponent.getElement().querySelector('.films-list'), showMoreBtnComponent.getElement(), RenderPosition.BEFOREEND);
+    const showMoreBtnComponent = new ShowMoretBtnView();
+    render(sectionFilmsComponent.getElement().querySelector('.films-list'), showMoreBtnComponent.getElement(), RenderPosition.BEFOREEND);
 
-  showMoreBtnComponent.getElement().addEventListener('click', (evt) => {
-    evt.preventDefault();
+    showMoreBtnComponent.getElement().addEventListener('click', (evt) => {
+      evt.preventDefault();
 
-    popupComponent.getElement().style.visibility = 'hidden';
+      popupComponent.getElement().style.visibility = 'hidden';
 
-    films
-      .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) =>  renderFilmCard(sectionFilmsComponent.getElement().querySelector('.films-list__container'), film, commentsList));
+      films
+        .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
+        .forEach((film) =>  renderFilmCard(sectionFilmsComponent.getElement().querySelector('.films-list__container'), film, commentsList));
 
-    renderedFilmCount += FILM_COUNT_PER_STEP;
+      renderedFilmCount += FILM_COUNT_PER_STEP;
 
-    if (renderedFilmCount >= films.length) {
-      showMoreBtnComponent.getElement().remove();
-    }
-  });
+      if (renderedFilmCount >= films.length) {
+        showMoreBtnComponent.getElement().remove();
+      }
+    });
+  }
 }
 
 //Карточка topRated и mostCommented
-const topRatedList = films.sort((a, b) => b.totalRating - a.totalRating);
+if (films.length > 0) {
+  const topRatedList = films.sort((a, b) => b.totalRating - a.totalRating);
 
-for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
-  renderFilmCard(topRatedComponent.getElement().querySelector('.films-list__container'), topRatedList[i], commentsList);
-}
+  for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
+    renderFilmCard(topRatedComponent.getElement().querySelector('.films-list__container'), topRatedList[i], commentsList);
+  }
 
-const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
+  const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
 
-for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
-  renderFilmCard(mostCommentedComponent.getElement().querySelector('.films-list__container'), mostCommentedList[i], commentsList);
+  for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
+    renderFilmCard(mostCommentedComponent.getElement().querySelector('.films-list__container'), mostCommentedList[i], commentsList);
+  }
 }
