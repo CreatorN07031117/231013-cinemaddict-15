@@ -13,11 +13,11 @@ import PopupView from './view/popup.js';
 import EmptyListMessageView from './view/list-empty.js';
 import {generateFilm} from './mock/film-card-mock.js';
 import {generateComment} from './mock/comments-mock.js';
-import {render, RenderPosition} from './utils.js';
+import {render, RenderPosition} from './utils/render.js';
 
 
 const ITEMS_IN_EXTRA_LIST = 2;
-const FILM_COUNT = 15;
+const FILM_COUNT = 13;
 const FILM_COUNT_PER_STEP = 5;
 const COMMENTS_COUNT = 50;
 const bodyElement = document.querySelector('body');
@@ -60,25 +60,12 @@ const popupComponent = new PopupView();
 render(siteFooterElement, popupComponent.getElement(), RenderPosition.AFTEREND);
 popupComponent.getElement().style.visibility = 'hidden';
 
+
 //Карточка фильма
 const renderFilmCard = (filmsListElement, film, commentList) => {
   const filmCardComponent = new FilmCardView(film);
   const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
   const commentsPopupComponet = new PopupCommentsView(commentList, film);
-
-
-  const showPopup = () => {
-    popupComponent.getElement().innerHTML = '';
-    popupComponent.getElement().style.visibility = 'visible';
-    popupComponent.getElement().appendChild(filmDetailsPopupComponent.getElement());
-    render(popupComponent.getElement(), commentsPopupComponet.getElement(), RenderPosition.BEFOREEND);
-  };
-
-  const hidePopup = () => {
-    commentsPopupComponet.getElement().remove();
-    popupComponent.getElement().removeChild(filmDetailsPopupComponent.getElement());
-    popupComponent.getElement().style.visibility = 'hidden';
-  };
 
   const onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
@@ -89,24 +76,27 @@ const renderFilmCard = (filmsListElement, film, commentList) => {
     }
   };
 
-
-  filmCardComponent.getElement().querySelector('.film-card__poster').addEventListener('click', () => {
-    showPopup();
-    bodyElement.classList.add('hide-overflow');
+  const showPopup = () => {
+    popupComponent.getElement().innerHTML = '';
+    popupComponent.getElement().style.visibility = 'visible';
+    popupComponent.getElement().appendChild(filmDetailsPopupComponent.getElement());
+    render(popupComponent.getElement(), commentsPopupComponet.getElement(), RenderPosition.BEFOREEND);
     document.addEventListener('keydown', onEscKeyDown);
-  });
+  };
 
-  filmCardComponent.getElement().querySelector('.film-card__title').addEventListener('click', () => {
+  const hidePopup = () => {
+    commentsPopupComponet.getElement().remove();
+    popupComponent.getElement().removeChild(filmDetailsPopupComponent.getElement());
+    popupComponent.getElement().style.visibility = 'hidden';
+  };
+
+
+  filmCardComponent.setOpenCardClickHandler(() => {
     showPopup();
     bodyElement.classList.add('hide-overflow');
   });
 
-  filmCardComponent.getElement().querySelector('.film-card__comments').addEventListener('click', () => {
-    showPopup();
-    bodyElement.classList.add('hide-overflow');
-  });
-
-  filmDetailsPopupComponent.getElement().querySelector('.film-details__close-btn').addEventListener('click', () => {
+  filmDetailsPopupComponent.setCloseCardClickHandler(() => {
     hidePopup();
     bodyElement.classList.remove('hide-overflow');
   });
@@ -125,10 +115,8 @@ if (films.length > 0) {
     const showMoreBtnComponent = new ShowMoretBtnView();
     render(sectionFilmsComponent.getElement().querySelector('.films-list'), showMoreBtnComponent.getElement(), RenderPosition.BEFOREEND);
 
-    showMoreBtnComponent.getElement().addEventListener('click', (evt) => {
-      evt.preventDefault();
-
-      popupComponent.getElement().style.visibility = 'hidden';
+    showMoreBtnComponent.setClickHandler((film) => {
+          popupComponent.getElement().style.visibility = 'hidden';
 
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)

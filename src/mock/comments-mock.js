@@ -1,4 +1,4 @@
-import {getRandomInteger} from '../utils.js';
+import {getRandomInteger} from '../utils/common.js';
 import dayjs from 'dayjs';
 
 const COMMENT_EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
