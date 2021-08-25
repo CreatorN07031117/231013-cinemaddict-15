@@ -23,30 +23,26 @@ const createFilmsDetailsPopup = (film) => {
     favoriteMark = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>';
   }
 
-  return `<form class="film-details__inner" action="" method="get">
-      <div class="film-details__top-container">
-        <div class="film-details__close">
-          <button class="film-details__close-btn" type="button">close</button>
-        </div>
+  return `<div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
             <img class="film-details__poster-img" src=${film.poster} alt="">
-  
+
             <p class="film-details__age">${film.ageRating}</p>
           </div>
-  
+
           <div class="film-details__info">
             <div class="film-details__info-head">
               <div class="film-details__title-wrap">
                 <h3 class="film-details__title">${film.title}</h3>
                 <p class="film-details__title-original">Original: ${film.alternativeTitle}</p>
               </div>
-  
+
               <div class="film-details__rating">
                 <p class="film-details__total-rating">${film.totalRating}</p>
               </div>
             </div>
-  
+
             <table class="film-details__table">
               <tr class="film-details__row">
                 <td class="film-details__term">Director</td>
@@ -79,21 +75,19 @@ const createFilmsDetailsPopup = (film) => {
                 </td>
               </tr>
             </table>
-  
+
             <p class="film-details__film-description">
             ${film.description}
             </p>
           </div>
         </div>
-  
+
         <section class="film-details__controls">
           ${watchlistMark}
           ${markAsWatched}
           ${favoriteMark}
         </section>
-      </div>
-  
-    </form>`;
+      </div>`;
 };
 
 export default class FilmDetailsPopup {
