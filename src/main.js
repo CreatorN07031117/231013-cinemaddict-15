@@ -17,7 +17,7 @@ import {render, RenderPosition} from './utils/render.js';
 
 
 const ITEMS_IN_EXTRA_LIST = 2;
-const FILM_COUNT = 13;
+const FILM_COUNT = 14;
 const FILM_COUNT_PER_STEP = 5;
 const COMMENTS_COUNT = 50;
 const bodyElement = document.querySelector('body');
@@ -55,11 +55,41 @@ const siteFooterElement = document.querySelector('.footer');
 
 render(siteFooterElement, new FooterStaticticsView(films).getElement(), RenderPosition.BEFOREEND);
 
-const popupComponent = new PopupView();
+let popupComponent;
 
-render(siteFooterElement, popupComponent.getElement(), RenderPosition.AFTEREND);
-popupComponent.getElement().style.visibility = 'hidden';
+const hidePopup = () => {
+  bodyElement.classList.remove('hide-overflow');
+  popupComponent.getElement().remove();
+  popupComponent.removeElement();
+  popupComponent = null;
+};
 
+const onEscKeyDown = (evt) => {
+  if (evt.key === 'Escape' || evt.key === 'Esc') {
+    evt.preventDefault();
+    hidePopup();
+    document.removeEventListener('keydown', onEscKeyDown);
+  }
+};
+
+const showPopup = (filmDetails, comments) => {
+  if (!popupComponent) {
+    popupComponent = new PopupView(filmDetails, comments);
+    render(siteFooterElement, popupComponent.getElement(), RenderPosition.AFTEREND);
+    bodyElement.classList.add('hide-overflow');
+    popupComponent.setOpenPopupClickHandler(hidePopup);
+    document.addEventListener('keydown', onEscKeyDown);
+  }
+  else {
+    popupComponent.getFilmDetails().getElement().remove();
+    popupComponent.getComments().getElement().remove();
+    popupComponent.setFilmDetails(filmDetails);
+    popupComponent.setComments(comments);
+  }
+  const filmDetailsContainer = popupComponent.getElement().querySelector('.film-details__top-container');
+  render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
+  render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
+};
 
 //Карточка фильма
 const renderFilmCard = (filmsListElement, film, commentList) => {
@@ -67,38 +97,16 @@ const renderFilmCard = (filmsListElement, film, commentList) => {
   const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
   const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
-  const onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      hidePopup();
-      bodyElement.classList.remove('hide-overflow');
-      document.removeEventListener('keydown', onEscKeyDown);
-    }
-  };
-
-  const showPopup = () => {
-    popupComponent.getElement().innerHTML = '';
-    popupComponent.getElement().style.visibility = 'visible';
-    popupComponent.getElement().appendChild(filmDetailsPopupComponent.getElement());
-    render(popupComponent.getElement(), commentsPopupComponet.getElement(), RenderPosition.BEFOREEND);
-    document.addEventListener('keydown', onEscKeyDown);
-  };
-
-  const hidePopup = () => {
-    commentsPopupComponet.getElement().remove();
-    popupComponent.getElement().removeChild(filmDetailsPopupComponent.getElement());
-    popupComponent.getElement().style.visibility = 'hidden';
-  };
-
-
-  filmCardComponent.setOpenCardClickHandler(() => {
-    showPopup();
-    bodyElement.classList.add('hide-overflow');
+  filmCardComponent.getElement().querySelector('.film-card__poster').addEventListener('click', () => {
+    showPopup(filmDetailsPopupComponent, commentsPopupComponet);
   });
 
-  filmDetailsPopupComponent.setCloseCardClickHandler(() => {
-    hidePopup();
-    bodyElement.classList.remove('hide-overflow');
+  filmCardComponent.getElement().querySelector('.film-card__title').addEventListener('click', () => {
+    showPopup(filmDetailsPopupComponent, commentsPopupComponet);
+  });
+
+  filmCardComponent.getElement().querySelector('.film-card__comments').addEventListener('click', () => {
+    showPopup(filmDetailsPopupComponent, commentsPopupComponet);
   });
 
   render(filmsListElement, filmCardComponent.getElement(), RenderPosition.BEFOREEND);
@@ -115,8 +123,10 @@ if (films.length > 0) {
     const showMoreBtnComponent = new ShowMoretBtnView();
     render(sectionFilmsComponent.getElement().querySelector('.films-list'), showMoreBtnComponent.getElement(), RenderPosition.BEFOREEND);
 
-    showMoreBtnComponent.setClickHandler((film) => {
-          popupComponent.getElement().style.visibility = 'hidden';
+    showMoreBtnComponent.getElement().addEventListener('click', (evt) => {
+      evt.preventDefault();
+
+     // hidePopup();
 
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
