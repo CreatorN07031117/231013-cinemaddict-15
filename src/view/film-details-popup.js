@@ -84,6 +84,7 @@ const createFilmsDetailsPopup = (film) => {
       </div>`;
 };
 
+
 export default class FilmDetail extends AbstractView  {
   constructor(film) {
     super();

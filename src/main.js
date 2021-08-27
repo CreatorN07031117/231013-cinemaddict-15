@@ -131,6 +131,7 @@ if (films.length > 0) {
   }
 }
 
+
 //Карточка topRated и mostCommented
 if (films.length > 0) {
   const topRatedList = films.sort((a, b) => b.totalRating - a.totalRating);
