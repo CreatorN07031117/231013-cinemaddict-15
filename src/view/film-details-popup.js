@@ -27,6 +27,7 @@ const createFilmsDetailsPopup = (film) => {
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
             <img class="film-details__poster-img" src=${film.poster} alt="">
+
             <p class="film-details__age">${film.ageRating}</p>
           </div>
           <div class="film-details__info">

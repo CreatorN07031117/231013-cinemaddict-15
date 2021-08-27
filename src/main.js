@@ -97,6 +97,7 @@ const renderFilmCard = (filmsListElement, film, commentList) => {
   const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
   const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
+
   filmCardComponent.setOpenCardClickHandler(() => {
     showPopup(filmDetailsPopupComponent, commentsPopupComponet);
   });
@@ -117,7 +118,7 @@ if (films.length > 0) {
 
     showMoreBtnComponent.getElement().addEventListener('click', (evt) => {
       evt.preventDefault();
-
+      
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
         .forEach((film) =>  renderFilmCard(sectionFilmsComponent.getElement().querySelector('.films-list__container'), film, commentsList));
