@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import AbstractView from './abstract.js';
 
+
 const createFilmsDetailsPopup = (film) => {
   const genresList = film.genres;
   const genreContent = genresList
