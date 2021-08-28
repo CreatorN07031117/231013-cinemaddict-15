@@ -56,19 +56,20 @@ const siteFooterElement = document.querySelector('.footer');
 render(siteFooterElement, new FooterStaticticsView(films), RenderPosition.BEFOREEND);
 
 let popupComponent;
+let onEscKeyDown = () => {};
 
 const hidePopup = () => {
   bodyElement.classList.remove('hide-overflow');
   popupComponent.getElement().remove();
   popupComponent.removeElement();
   popupComponent = null;
+  document.removeEventListener('keydown', onEscKeyDown);
 };
 
-const onEscKeyDown = (evt) => {
+onEscKeyDown = (evt) => {
   if (evt.key === 'Escape' || evt.key === 'Esc') {
     evt.preventDefault();
-    hidePopup();
-    document.removeEventListener('keydown', onEscKeyDown);
+    hidePopup(onEscKeyDown);
   }
 };
 
@@ -97,7 +98,6 @@ const renderFilmCard = (filmsListElement, film, commentList) => {
   const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
   const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
-
   filmCardComponent.setOpenCardClickHandler(() => {
     showPopup(filmDetailsPopupComponent, commentsPopupComponet);
   });
@@ -118,7 +118,7 @@ if (films.length > 0) {
 
     showMoreBtnComponent.getElement().addEventListener('click', (evt) => {
       evt.preventDefault();
-      
+
       films
         .slice(renderedFilmCount, renderedFilmCount + FILM_COUNT_PER_STEP)
         .forEach((film) =>  renderFilmCard(sectionFilmsComponent.getElement().querySelector('.films-list__container'), film, commentsList));
