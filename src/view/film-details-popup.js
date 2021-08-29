@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
+
 
 const createFilmsDetailsPopup = (film) => {
   const genresList = film.genres;
@@ -30,19 +31,16 @@ const createFilmsDetailsPopup = (film) => {
 
             <p class="film-details__age">${film.ageRating}</p>
           </div>
-
           <div class="film-details__info">
             <div class="film-details__info-head">
               <div class="film-details__title-wrap">
                 <h3 class="film-details__title">${film.title}</h3>
                 <p class="film-details__title-original">Original: ${film.alternativeTitle}</p>
               </div>
-
               <div class="film-details__rating">
                 <p class="film-details__total-rating">${film.totalRating}</p>
               </div>
             </div>
-
             <table class="film-details__table">
               <tr class="film-details__row">
                 <td class="film-details__term">Director</td>
@@ -75,13 +73,11 @@ const createFilmsDetailsPopup = (film) => {
                 </td>
               </tr>
             </table>
-
             <p class="film-details__film-description">
             ${film.description}
             </p>
           </div>
         </div>
-
         <section class="film-details__controls">
           ${watchlistMark}
           ${markAsWatched}
@@ -90,25 +86,15 @@ const createFilmsDetailsPopup = (film) => {
       </div>`;
 };
 
-export default class FilmDetailsPopup {
+
+export default class FilmDetail extends AbstractView  {
   constructor(film) {
+    super();
+
     this._film = film;
-    this._element = null;
   }
 
   getTemplate() {
     return createFilmsDetailsPopup(this._film);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
