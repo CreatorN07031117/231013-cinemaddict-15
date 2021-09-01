@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import AbstractView from './abstract.js';
 
 const countFilms = (films) => {
   let whatchlistCounter = 0;
@@ -41,25 +41,14 @@ const createSiteMenuTemplate = (films) => {
   </nav>`;
 };
 
-export default class SiteMenu {
+export default class SiteMenu extends AbstractView {
   constructor(films) {
+    super();
+
     this._films = films;
-    this._element = null;
   }
 
   getTemplate() {
     return createSiteMenuTemplate(this._films);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
