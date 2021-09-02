@@ -31,13 +31,15 @@ export default class Board {
     this._topRatedComponent = new TopRatedBlockView();
     this._mostCommentedComponent = new MostCommentedBlockView();
     this._emptyListMessage = new EmptyListMessageView();
+    this._showMoreBtnComponent = new ShowMoretBtnView();
+
     this._popupComponent = null;
     this._filmDetailsPopupComponent = null;
     this._commentPopupComponent = null;
-    this._showMoreBtnComponent = new ShowMoretBtnView();
+    this._filmsIdList = new Map ();
 
     this._handleShowMoreBtnClick = this._handleShowMoreBtnClick.bind(this);
-    //this._handleClosePopupClick = this.__handleClosePopupClick.bind(this);
+    this._hidePopup = this._hidePopup.bind(this);
   }
 
   init (films, commentsList) {
@@ -63,20 +65,25 @@ export default class Board {
 
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
-    console.log(this._popupComponent)
     this._popupComponent.getElement().remove();
     this._popupComponent.removeElement();
     this._popupComponent = null;
-    //document.removeEventListener('keydown', onEscKeyDown);
   }
 
   _showPopup(filmDetails, comments) {
+    const onEscKeyDown = (evt) => {
+        if (evt.key === 'Escape' || evt.key === 'Esc') {
+          evt.preventDefault();
+          this._hidePopup()
+        }
+      };
+
     if (this._popupComponent === null) {
         this._popupComponent = new PopupView(filmDetails, comments);
         render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
         this._popupComponent.setClosePopupClickHandler(this._hidePopup);
-        //document.addEventListener('keydown', onEscKeyDown);
         bodyElement.classList.add('hide-overflow');
+        document.addEventListener('keydown', onEscKeyDown);
       }
       else {
         this._popupComponent.getFilmDetails().getElement().remove();
@@ -88,7 +95,8 @@ export default class Board {
       const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
       render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
       render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
-      console.log(this._popupComponent)
+
+
   }
 
   _renderFilmCard (filmsListElement, film, commentList) {
@@ -101,6 +109,8 @@ export default class Board {
     });
   
     render(filmsListElement, filmCardComponent, RenderPosition.BEFOREEND);
+
+    this._filmsIdList.set(film.id, filmCardComponent);
   };
 
   _renderFilms(from, to) {
