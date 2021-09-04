@@ -6,12 +6,11 @@ import FilmCardView from '../view/film-card.js';
 import ShowMoretBtnView from '../view/show-more-button.js';
 import TopRatedBlockView from '../view/top-rated-block.js';
 import MostCommentedBlockView from '../view/most-commented-block.js';
-import FooterStaticticsView from '../view/site-footer-statistic.js';
 import FilmDetailsPopupView from '../view/film-details-popup.js';
 import PopupCommentsView from '../view/popup-comments.js';
 import PopupView from '../view/popup.js';
 import EmptyListMessageView from '../view/list-empty.js';
-import {render, RenderPosition, remove, replace} from '../utils/render.js';
+import {render, RenderPosition, remove} from '../utils/render.js';
 import {updateItem} from '../utils/common.js';
 import {SortType} from '../utils/const.js';
 import dayjs from 'dayjs';
@@ -55,19 +54,19 @@ export default class Board {
     this._commentsList = commentsList.slice();
 
     render(this._headerBlock, this._userRankView, RenderPosition.BEFOREEND);
-    
+
     this._renderSiteMenu (films);
 
     if(this._films.length > 0) {
-        this._renderFilmsBoard(this._films);
-      } else {
-        render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
-      }
+      this._renderFilmsBoard(this._films);
+    } else {
+      render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
+    }
   }
 
   _renderSiteMenu (films) {
     this._siteMenu = new SiteMenuView(films);
-    
+
     render(this._mainBlock, this._siteMenu, RenderPosition.BEFOREEND);
   }
 
@@ -82,29 +81,28 @@ export default class Board {
   //Показ попапа
   _showPopup(filmDetails, comments) {
     const onEscKeyDown = (evt) => {
-        if (evt.key === 'Escape' || evt.key === 'Esc') {
-          evt.preventDefault();
-          this._hidePopup()
-        }
-      };
+      if (evt.key === 'Escape' || evt.key === 'Esc') {
+        evt.preventDefault();
+        this._hidePopup();
+      }
+    };
 
     if (this._popupComponent === null) {
-        this._popupComponent = new PopupView(filmDetails, comments);
-        render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
-        this._popupComponent.setClosePopupClickHandler(this._hidePopup);
-        bodyElement.classList.add('hide-overflow');
-        document.addEventListener('keydown', onEscKeyDown);
-      }
-      else {
-        this._popupComponent.getFilmDetails().getElement().remove();
-        this._popupComponent.getComments().getElement().remove();
-        this._popupComponent.setFilmDetails(filmDetails);
-        this._popupComponent.setComments(comments);
-      }
+      this._popupComponent = new PopupView(filmDetails, comments);
+      render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
+      this._popupComponent.setClosePopupClickHandler(this._hidePopup);
+      bodyElement.classList.add('hide-overflow');
+      document.addEventListener('keydown', onEscKeyDown);
+    } else {
+      this._popupComponent.getFilmDetails().getElement().remove();
+      this._popupComponent.getComments().getElement().remove();
+      this._popupComponent.setFilmDetails(filmDetails);
+      this._popupComponent.setComments(comments);
+    }
 
-      const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
-      render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
-      render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
+    const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
+    render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
+    render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
   }
 
   //Рендеринг карточки фильма
@@ -112,27 +110,27 @@ export default class Board {
     const filmCardComponent = new FilmCardView(film);
     const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
     const commentsPopupComponet = new PopupCommentsView(commentList, film);
-  
+
     filmCardComponent.setOpenCardClickHandler(() => {
       this._showPopup(filmDetailsPopupComponent, commentsPopupComponet);
     });
-  
+
     render(filmsListElement, filmCardComponent, renderPosition);
 
-   filmCardComponent.setWatchlistClickHandler (() => {
+    filmCardComponent.setWatchlistClickHandler (() => {
       this._handleWhatchlistClick(film);
-    })
+    });
 
     filmCardComponent.setAlreadyWatchedClickHandler (() => {
       this._handleAlreadyWatchedClick(film);
-    })
+    });
 
     filmCardComponent.setFavoritesClickHandler (() => {
       this._handleFavoritesClick(film);
-    })
+    });
 
     this._filmsIdList.set(film.id, filmCardComponent);
-  };
+  }
 
   //Клик по кнопке Add to whatchlist
   _handleWhatchlistClick (film) {
@@ -140,9 +138,9 @@ export default class Board {
       {}, film , {watchlist: !film.whatchlist},
     );
     this._handleFilmPropertyChange (updatefilm);
-}
+  }
 
-   //клик по кнопке Mark as watched
+  //клик по кнопке Mark as watched
   _handleAlreadyWatchedClick (film) {
     const updatefilm = Object.assign(
       {}, film , {alreadyWatched: !film.alreadyWatched},
@@ -155,32 +153,32 @@ export default class Board {
     const updatefilm = Object.assign(
       {}, film , {favorite: !film.favorite},
     );
-      this._handleFilmPropertyChange (updatefilm);
-    }
+    this._handleFilmPropertyChange (updatefilm);
+  }
 
   // Метод изменения свойства в фильме
   _handleFilmPropertyChange (updatedFilm) {
     this._films = updateItem(this._films, updatedFilm);
-    const prevFilmCard = this._filmsIdList.get(updatedFilm.id)
+    const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
     remove(prevFilmCard);
   }
 
   //Список фильмов от-до
   _renderFilms(from, to) {
-    this._filmListContainer = this._sectionFilmsComponent.getElement().querySelector('.films-list__container')
+    this._filmListContainer = this._sectionFilmsComponent.getElement().querySelector('.films-list__container');
 
     this._films
       .slice(from, to)
-      .forEach((film) => this._renderFilmCard(this._filmListContainer, film, this._commentsList, RenderPosition.BEFOREEND))
+      .forEach((film) => this._renderFilmCard(this._filmListContainer, film, this._commentsList, RenderPosition.BEFOREEND));
   }
 
   //Создание списка фильмов
   _renderFilmList (films, commentsList) {
-    this._renderFilms(0, Math.min(this._films.length, FILM_COUNT_PER_STEP)); 
+    this._renderFilms(0, Math.min(this._films.length, FILM_COUNT_PER_STEP));
 
     if (films.length > FILM_COUNT_PER_STEP) {
-      this._renderShowMoreButton (films, commentsList) 
+      this._renderShowMoreButton (films, commentsList);
     }
   }
 
@@ -203,10 +201,10 @@ export default class Board {
   }
 
   //Рендеринг кнопки show more
-  _renderShowMoreButton (films, commentsList) {
+  _renderShowMoreButton () {
     render(this._sectionFilmsComponent.getElement().querySelector('.films-list'), this._showMoreBtnComponent, RenderPosition.BEFOREEND);
-    
-    this._showMoreBtnComponent.setClickHandler(this._handleShowMoreBtnClick )
+
+    this._showMoreBtnComponent.setClickHandler(this._handleShowMoreBtnClick);
   }
 
   _renderSort () {
@@ -215,8 +213,8 @@ export default class Board {
   }
 
   _handleSortTypeChange(sortType) {
-     if (this._currentSortType === sortType) {
-        return;
+    if (this._currentSortType === sortType) {
+      return;
     }
     this._sortFilms(sortType);
     this._clearFilmList();
@@ -227,8 +225,8 @@ export default class Board {
 
     switch (sortType) {
       case SortType.DATE:
-        console.log(this._films.forEach((film) => film.realese))
-        this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)))
+
+        this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
         break;
       case SortType.RATING:
         this._films.sort((a, b) => b.totalRating - a.totalRating);
@@ -240,7 +238,6 @@ export default class Board {
     this._currentSortType = sortType;
   }
 
-  
   _renderFilmsBoard (films, commentsList) {
     this._renderSort();
 
@@ -256,9 +253,9 @@ export default class Board {
 
     render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.AFTEREND);
     const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
-  
+
     for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
-        this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), mostCommentedList[i], commentsList, RenderPosition.BEFOREEND);
+      this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), mostCommentedList[i], commentsList, RenderPosition.BEFOREEND);
     }
   }
 }
