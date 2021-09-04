@@ -37,7 +37,6 @@ export default class Board {
     this._showMoreBtnComponent = new ShowMoretBtnView();
 
     this._popupComponent = null;
-    this._prevFilmsComponent = new Map;
     this._filmDetailsPopupComponent = null;
     this._commentPopupComponent = null;
     this._filmsIdList = new Map ();
@@ -107,29 +106,28 @@ export default class Board {
 
   //Рендеринг карточки фильма
   _renderFilmCard (filmsListElement, film, commentList, renderPosition) {
-    const filmCardComponent = new FilmCardView(film);
+    this._filmCardComponent = new FilmCardView(film);
     const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
     const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
-    filmCardComponent.setOpenCardClickHandler(() => {
+    this._filmCardComponent.setOpenCardClickHandler(() => {
       this._showPopup(filmDetailsPopupComponent, commentsPopupComponet);
     });
 
-    render(filmsListElement, filmCardComponent, renderPosition);
+    render(filmsListElement, this._filmCardComponent, renderPosition);
 
-    filmCardComponent.setWatchlistClickHandler (() => {
+    this._filmCardComponent.setWatchlistClickHandler (() => {
       this._handleWhatchlistClick(film);
     });
 
-    filmCardComponent.setAlreadyWatchedClickHandler (() => {
+    this._filmCardComponent.setAlreadyWatchedClickHandler (() => {
       this._handleAlreadyWatchedClick(film);
     });
 
-    filmCardComponent.setFavoritesClickHandler (() => {
+    this._filmCardComponent.setFavoritesClickHandler (() => {
       this._handleFavoritesClick(film);
     });
 
-    this._filmsIdList.set(film.id, filmCardComponent);
   }
 
   //Клик по кнопке Add to whatchlist
@@ -170,7 +168,10 @@ export default class Board {
 
     this._films
       .slice(from, to)
-      .forEach((film) => this._renderFilmCard(this._filmListContainer, film, this._commentsList, RenderPosition.BEFOREEND));
+      .forEach((film) => {
+        this._renderFilmCard(this._filmListContainer, film, this._commentsList, RenderPosition.BEFOREEND);
+        this._filmsIdList.set(film.id, this._filmCardComponent);
+      });
   }
 
   //Создание списка фильмов
@@ -225,7 +226,6 @@ export default class Board {
 
     switch (sortType) {
       case SortType.DATE:
-
         this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
         break;
       case SortType.RATING:
@@ -245,13 +245,13 @@ export default class Board {
     this._renderFilmList (films, commentsList);
 
     //блоки topRated и mostCommented
-    render(this._sectionFilmsComponent, this._topRatedComponent, RenderPosition.AFTEREND);
+    render(this._sectionFilmsComponent, this._topRatedComponent, RenderPosition.BEFOREEND);
     const topRatedList = films.slice().sort((a, b) => b.totalRating - a.totalRating);
     for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
-      this._renderFilmCard( this._topRatedComponent.getElement().querySelector('.films-list__container'), topRatedList[i], commentsList, RenderPosition.BEFOREEND);
+      this._renderFilmCard(this._topRatedComponent.getElement().querySelector('.films-list__container'), topRatedList[i], commentsList, RenderPosition.BEFOREEND);
     }
 
-    render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.AFTEREND);
+    render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.BEFOREEND);
     const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
 
     for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
