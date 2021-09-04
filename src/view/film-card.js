@@ -46,7 +46,7 @@ export default class FilmCard extends AbstractView {
     this._film = film;
     this._clickHandler = this._clickHandler.bind(this);
     this._watchlistClicklHandler = this._watchlistClicklHandler.bind(this);
-    this._alreadyWatchedClickHandler  = this._alreadyWatchedClickHandler.bind(this); 
+    this._alreadyWatchedClickHandler  = this._alreadyWatchedClickHandler.bind(this);
     this._favoritesClickHandler = this._favoritesClickHandler.bind(this);
   }
 
@@ -70,12 +70,12 @@ export default class FilmCard extends AbstractView {
     evt.preventDefault();
     this._callback.watchlistClick();
   }
-  
+
   _alreadyWatchedClickHandler (evt) {
     evt.preventDefault();
     this._callback.alreadyWatchedClick();
   }
-  
+
   _favoritesClickHandler (evt) {
     evt.preventDefault();
     this._callback.favoritesClick();
