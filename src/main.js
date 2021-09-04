@@ -20,6 +20,7 @@ const siteFooterElement = document.querySelector('.footer');
 
 const filmsPresenter = new FilmsPresenter(siteHeaderElement, siteMainElement, siteFooterElement);
 
+
 filmsPresenter.init(films, commentsList);
 
 
