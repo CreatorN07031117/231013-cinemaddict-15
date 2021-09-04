@@ -6,7 +6,7 @@ import {render, RenderPosition, remove} from './utils/render.js';
 
 
 const ITEMS_IN_EXTRA_LIST = 2;
-const FILM_COUNT = 14;
+const FILM_COUNT = 15;
 const FILM_COUNT_PER_STEP = 5;
 const COMMENTS_COUNT = 50;
 const bodyElement = document.querySelector('body');
