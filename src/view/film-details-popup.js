@@ -15,7 +15,7 @@ const createFilmsDetailsPopup = (film) => {
   }
 
   let markAsWatched = '<button type="button" class="film-details__control-button film-details__control-button--watched" id="watched" name="watched">Already watched</button>';
-  if (film.already_watched) {
+  if (film.alreadyWatched) {
     markAsWatched = '<button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>';
   }
 

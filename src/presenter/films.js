@@ -103,6 +103,20 @@ export default class Board {
     const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
     render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
     render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
+
+    filmDetails.setWatchlistClickHandler(() => this._whatchlistPopupBtnClick(film, filmDetails, comments))
+    filmDetails.setAlreadyWatchedClickHandler(() => this._alreadyWatchedPopupBtnClick(film, filmDetails, comments))
+  }
+
+  _whatchlistPopupBtnClick(film, filmDetails, comments) {
+  this._handleWhatchlistClick (film);
+  this._showPopup(film, filmDetails, comments);
+  }
+
+  _alreadyWatchedPopupBtnClick(film, filmDetails, comments) {
+  this._handleAlreadyWatchedClick (film);
+  console.log(film);
+  this._showPopup(film, filmDetails, comments);
   }
 
   //Рендеринг карточки фильма
@@ -112,7 +126,7 @@ export default class Board {
     const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
     this._filmCardComponent.setOpenCardClickHandler(() => {
-      this._showPopup(this._filmCardComponent, filmDetailsPopupComponent, commentsPopupComponet);
+      this._showPopup(film, filmDetailsPopupComponent, commentsPopupComponet);
     });
 
     render(filmsListElement, this._filmCardComponent, renderPosition);
