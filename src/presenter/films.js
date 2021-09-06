@@ -78,7 +78,7 @@ export default class Board {
   }
 
   //Показ попапа
-  _showPopup(filmDetails, comments) {
+  _showPopup(film, filmDetails, comments) {
     const onEscKeyDown = (evt) => {
       if (evt.key === 'Escape' || evt.key === 'Esc') {
         evt.preventDefault();
@@ -97,6 +97,7 @@ export default class Board {
       this._popupComponent.getComments().getElement().remove();
       this._popupComponent.setFilmDetails(filmDetails);
       this._popupComponent.setComments(comments);
+      console.log('double')
     }
 
     const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
@@ -111,7 +112,7 @@ export default class Board {
     const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
     this._filmCardComponent.setOpenCardClickHandler(() => {
-      this._showPopup(filmDetailsPopupComponent, commentsPopupComponet);
+      this._showPopup(this._filmCardComponent, filmDetailsPopupComponent, commentsPopupComponet);
     });
 
     render(filmsListElement, this._filmCardComponent, renderPosition);
@@ -133,7 +134,7 @@ export default class Board {
   //Клик по кнопке Add to whatchlist
   _handleWhatchlistClick (film) {
     const updatefilm = Object.assign(
-      {}, film , {watchlist: !film.whatchlist},
+      {}, film , {watchlist: !film.watchlist},
     );
     this._handleFilmPropertyChange (updatefilm);
   }
@@ -160,6 +161,7 @@ export default class Board {
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
     remove(prevFilmCard);
+    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
   }
 
   //Список фильмов от-до
