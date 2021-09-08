@@ -40,6 +40,8 @@ export default class Board {
     this._filmDetailsPopupComponent = null;
     this._commentPopupComponent = null;
     this._filmsIdList = new Map ();
+    this._topRatedFilmsId = new Map ();
+    this._mostCommentedFilmsId = new Map ();
 
     this._handleShowMoreBtnClick = this._handleShowMoreBtnClick.bind(this);
     this._hidePopup = this._hidePopup.bind(this);
@@ -72,9 +74,11 @@ export default class Board {
   //Сокрытие попапа
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
+    this._openedFilmId = null;
     this._popupComponent.getElement().remove();
     this._popupComponent.removeElement();
     this._popupComponent = null;
+
   }
 
   //Показ попапа
@@ -97,26 +101,15 @@ export default class Board {
       this._popupComponent.getComments().getElement().remove();
       this._popupComponent.setFilmDetails(filmDetails);
       this._popupComponent.setComments(comments);
-      console.log('double')
     }
 
     const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
     render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
     render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
 
-    filmDetails.setWatchlistClickHandler(() => this._whatchlistPopupBtnClick(film, filmDetails, comments))
-    filmDetails.setAlreadyWatchedClickHandler(() => this._alreadyWatchedPopupBtnClick(film, filmDetails, comments))
-  }
-
-  _whatchlistPopupBtnClick(film, filmDetails, comments) {
-  this._handleWhatchlistClick (film);
-  this._showPopup(film, filmDetails, comments);
-  }
-
-  _alreadyWatchedPopupBtnClick(film, filmDetails, comments) {
-  this._handleAlreadyWatchedClick (film);
-  console.log(film);
-  this._showPopup(film, filmDetails, comments);
+    filmDetails.setWatchlistClickHandler(() => this._handleWhatchlistClick(film));
+    filmDetails.setAlreadyWatchedClickHandler(() => this._handleAlreadyWatchedClick(film));
+    filmDetails.setFavoritesClickHandler(() => this._handleFavoritesClick (film));
   }
 
   //Рендеринг карточки фильма
@@ -126,6 +119,7 @@ export default class Board {
     const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
     this._filmCardComponent.setOpenCardClickHandler(() => {
+      this._openedFilmId = film.id;
       this._showPopup(film, filmDetailsPopupComponent, commentsPopupComponet);
     });
 
@@ -141,6 +135,7 @@ export default class Board {
 
     this._filmCardComponent.setFavoritesClickHandler (() => {
       this._handleFavoritesClick(film);
+
     });
 
   }
@@ -174,6 +169,29 @@ export default class Board {
     this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+
+    if (this._openedFilmId === updatedFilm.id) {
+      const filmDetailsPopupComponent = new FilmDetailsPopupView(updatedFilm);
+      const commentsPopupComponet = new PopupCommentsView(this._commentsList, updatedFilm);
+      this._showPopup(updatedFilm, filmDetailsPopupComponent, commentsPopupComponet);
+    }
+
+    if (this._topRatedFilmsId.has(updatedFilm.id)) {
+      const prewTopRatedFilmCard = this._topRatedFilmsId.get(updatedFilm.id);
+      this._renderFilmCard(prewTopRatedFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+      remove(prewTopRatedFilmCard);
+
+      this._topRatedFilmsId.set(updatedFilm.id, this._filmCardComponent);
+    }
+
+    if (this._mostCommentedFilmsId.has(updatedFilm.id)) {
+      const prewMostCommentedFilmCard = this._mostCommentedFilmsId.get(updatedFilm.id);
+      this._renderFilmCard(prewMostCommentedFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+      remove(prewMostCommentedFilmCard);
+
+      this._mostCommentedFilmsId.set(updatedFilm.id, this._filmCardComponent);
+    }
+
     remove(prevFilmCard);
     this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
   }
@@ -254,6 +272,30 @@ export default class Board {
     this._currentSortType = sortType;
   }
 
+  _renderTopRated (films) {
+    render(this._sectionFilmsComponent, this._topRatedComponent, RenderPosition.BEFOREEND);
+    const topRatedList = films.slice().sort((a, b) => b.totalRating - a.totalRating);
+
+    topRatedList
+      .slice(0, ITEMS_IN_EXTRA_LIST)
+      .forEach((film) => {
+        this._renderFilmCard(this._topRatedComponent.getElement().querySelector('.films-list__container'), film, this._commentsList, RenderPosition.BEFOREEND);
+        this._topRatedFilmsId.set(film.id, this._filmCardComponent);
+      });
+  }
+
+  _renderMostCommented (films) {
+    render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.BEFOREEND);
+    const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
+
+    mostCommentedList
+      .slice(0, ITEMS_IN_EXTRA_LIST)
+      .forEach((film) => {
+        this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), film, this._commentsList, RenderPosition.BEFOREEND);
+        this._mostCommentedFilmsId.set(film.id, this._filmCardComponent);
+      });
+  }
+
   _renderFilmsBoard (films, commentsList) {
     this._renderSort();
 
@@ -261,17 +303,7 @@ export default class Board {
     this._renderFilmList (films, commentsList);
 
     //блоки topRated и mostCommented
-    render(this._sectionFilmsComponent, this._topRatedComponent, RenderPosition.BEFOREEND);
-    const topRatedList = films.slice().sort((a, b) => b.totalRating - a.totalRating);
-    for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
-      this._renderFilmCard(this._topRatedComponent.getElement().querySelector('.films-list__container'), topRatedList[i], commentsList, RenderPosition.BEFOREEND);
-    }
-
-    render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.BEFOREEND);
-    const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
-
-    for (let i = 0; i < ITEMS_IN_EXTRA_LIST; i++) {
-      this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), mostCommentedList[i], commentsList, RenderPosition.BEFOREEND);
-    }
+    this._renderTopRated (films);
+    this._renderMostCommented (films);
   }
 }
