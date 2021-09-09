@@ -21,7 +21,7 @@ const ITEMS_IN_EXTRA_LIST = 2;
 const bodyElement = document.querySelector('body');
 
 export default class Board {
-  constructor (headerBlock, mainBlock, footerBlock) {
+  constructor(headerBlock, mainBlock, footerBlock) {
     this._headerBlock = headerBlock;
     this._mainBlock = mainBlock;
     this._footerBlock = footerBlock;
@@ -39,9 +39,9 @@ export default class Board {
     this._popupComponent = null;
     this._filmDetailsPopupComponent = null;
     this._commentPopupComponent = null;
-    this._filmsIdList = new Map ();
-    this._topRatedFilmsId = new Map ();
-    this._mostCommentedFilmsId = new Map ();
+    this._filmsIdList = new Map();
+    this._topRatedFilmsId = new Map();
+    this._mostCommentedFilmsId = new Map();
 
     this._handleShowMoreBtnClick = this._handleShowMoreBtnClick.bind(this);
     this._hidePopup = this._hidePopup.bind(this);
@@ -49,14 +49,14 @@ export default class Board {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
-  init (films, commentsList) {
+  init(films, commentsList) {
     this._films = films.slice();
-    this._sourcedBoardFilms= films.slice();
+    this._sourcedBoardFilms = films.slice();
     this._commentsList = commentsList.slice();
 
     render(this._headerBlock, this._userRankView, RenderPosition.BEFOREEND);
 
-    this._renderSiteMenu (films);
+    this._renderSiteMenu(films);
 
     if(this._films.length > 0) {
       this._renderFilmsBoard(this._films);
@@ -65,7 +65,7 @@ export default class Board {
     }
   }
 
-  _renderSiteMenu (films) {
+  _renderSiteMenu(films) {
     this._siteMenu = new SiteMenuView(films);
 
     render(this._mainBlock, this._siteMenu, RenderPosition.BEFOREEND);
@@ -74,16 +74,16 @@ export default class Board {
   //Сокрытие попапа
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this._onEscKeyDown);
     this._openedFilmId = null;
     this._popupComponent.getElement().remove();
     this._popupComponent.removeElement();
     this._popupComponent = null;
-
   }
 
   //Показ попапа
   _showPopup(film, filmDetails, comments) {
-    const onEscKeyDown = (evt) => {
+    this._onEscKeyDown = (evt) => {
       if (evt.key === 'Escape' || evt.key === 'Esc') {
         evt.preventDefault();
         this._hidePopup();
@@ -95,8 +95,10 @@ export default class Board {
       render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
       this._popupComponent.setClosePopupClickHandler(this._hidePopup);
       bodyElement.classList.add('hide-overflow');
-      document.addEventListener('keydown', onEscKeyDown);
+      document.addEventListener('keydown', this._onEscKeyDown);
+
     } else {
+      document.removeEventListener('keydown', this._onEscKeyDown);
       this._popupComponent.getFilmDetails().getElement().remove();
       this._popupComponent.getComments().getElement().remove();
       this._popupComponent.setFilmDetails(filmDetails);
@@ -113,7 +115,7 @@ export default class Board {
   }
 
   //Рендеринг карточки фильма
-  _renderFilmCard (filmsListElement, film, commentList, renderPosition) {
+  _renderFilmCard(filmsListElement, film, commentList, renderPosition) {
     this._filmCardComponent = new FilmCardView(film);
     const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
     const commentsPopupComponet = new PopupCommentsView(commentList, film);
@@ -125,15 +127,15 @@ export default class Board {
 
     render(filmsListElement, this._filmCardComponent, renderPosition);
 
-    this._filmCardComponent.setWatchlistClickHandler (() => {
+    this._filmCardComponent.setWatchlistClickHandler(() => {
       this._handleWhatchlistClick(film);
     });
 
-    this._filmCardComponent.setAlreadyWatchedClickHandler (() => {
+    this._filmCardComponent.setAlreadyWatchedClickHandler(() => {
       this._handleAlreadyWatchedClick(film);
     });
 
-    this._filmCardComponent.setFavoritesClickHandler (() => {
+    this._filmCardComponent.setFavoritesClickHandler(() => {
       this._handleFavoritesClick(film);
 
     });
@@ -141,23 +143,23 @@ export default class Board {
   }
 
   //Клик по кнопке Add to whatchlist
-  _handleWhatchlistClick (film) {
+  _handleWhatchlistClick(film) {
     const updatefilm = Object.assign(
       {}, film , {watchlist: !film.watchlist},
     );
-    this._handleFilmPropertyChange (updatefilm);
+    this._handleFilmPropertyChange(updatefilm);
   }
 
   //клик по кнопке Mark as watched
-  _handleAlreadyWatchedClick (film) {
+  _handleAlreadyWatchedClick(film) {
     const updatefilm = Object.assign(
       {}, film , {alreadyWatched: !film.alreadyWatched},
     );
-    this._handleFilmPropertyChange (updatefilm);
+    this._handleFilmPropertyChange(updatefilm);
   }
 
   //Клик по кнопке Add to Favorite
-  _handleFavoritesClick (film) {
+  _handleFavoritesClick(film) {
     const updatefilm = Object.assign(
       {}, film , {favorite: !film.favorite},
     );
@@ -165,7 +167,7 @@ export default class Board {
   }
 
   // Метод изменения свойства в фильме
-  _handleFilmPropertyChange (updatedFilm) {
+  _handleFilmPropertyChange(updatedFilm) {
     this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
@@ -206,7 +208,7 @@ export default class Board {
   }
 
   //Создание списка фильмов
-  _renderFilmList (films, commentsList) {
+  _renderFilmList(films, commentsList) {
     this._renderFilms(0, Math.min(this._films.length, FILM_COUNT_PER_STEP));
 
     if (films.length > FILM_COUNT_PER_STEP) {
@@ -215,7 +217,7 @@ export default class Board {
   }
 
   //Очистка списка фильмов
-  _clearFilmList () {
+  _clearFilmList() {
     this._filmsIdList.forEach((filmCard) => remove(filmCard));
     this._filmsIdList.clear();
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
@@ -233,13 +235,13 @@ export default class Board {
   }
 
   //Рендеринг кнопки show more
-  _renderShowMoreButton () {
+  _renderShowMoreButton() {
     render(this._sectionFilmsComponent.getElement().querySelector('.films-list'), this._showMoreBtnComponent, RenderPosition.BEFOREEND);
 
     this._showMoreBtnComponent.setClickHandler(this._handleShowMoreBtnClick);
   }
 
-  _renderSort () {
+  _renderSort() {
     render(this._mainBlock, this._siteSortComponent, RenderPosition.BEFOREEND);
     this._siteSortComponent.setSortTypeClickHandler(this._handleSortTypeChange);
   }
@@ -254,7 +256,7 @@ export default class Board {
   }
 
   _sortFilms(sortType) {
-
+    
     switch (sortType) {
       case SortType.DATE:
         this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
@@ -269,7 +271,7 @@ export default class Board {
     this._currentSortType = sortType;
   }
 
-  _renderTopRated (films) {
+  _renderTopRated(films) {
     render(this._sectionFilmsComponent, this._topRatedComponent, RenderPosition.BEFOREEND);
     const topRatedList = films.slice().sort((a, b) => b.totalRating - a.totalRating);
 
@@ -281,7 +283,7 @@ export default class Board {
       });
   }
 
-  _renderMostCommented (films) {
+  _renderMostCommented(films) {
     render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.BEFOREEND);
     const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
 
@@ -293,7 +295,7 @@ export default class Board {
       });
   }
 
-  _renderFilmsBoard (films, commentsList) {
+  _renderFilmsBoard(films, commentsList) {
     this._renderSort();
 
     render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
