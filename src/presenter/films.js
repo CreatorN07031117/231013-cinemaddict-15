@@ -112,7 +112,7 @@ export default class Board {
 
     filmDetails.setWatchlistClickHandler(() => this._handleWhatchlistClick(film));
     filmDetails.setAlreadyWatchedClickHandler(() => this._handleAlreadyWatchedClick(film));
-    filmDetails.setFavoritesClickHandler(() => this._handleFavoritesClick (film));
+    filmDetails.setFavoritesClickHandler(() => this._handleFavoritesClick(film));
   }
 
   //Рендеринг карточки фильма
@@ -163,7 +163,7 @@ export default class Board {
     const updatefilm = Object.assign(
       {}, film , {favorite: !film.favorite},
     );
-    this._handleFilmPropertyChange (updatefilm);
+    this._handleFilmPropertyChange(updatefilm);
   }
 
   // Метод изменения свойства в фильме
@@ -212,7 +212,7 @@ export default class Board {
     this._renderFilms(0, Math.min(this._films.length, FILM_COUNT_PER_STEP));
 
     if (films.length > FILM_COUNT_PER_STEP) {
-      this._renderShowMoreButton (films, commentsList);
+      this._renderShowMoreButton(films, commentsList);
     }
   }
 
@@ -257,7 +257,7 @@ export default class Board {
 
   _sortFilms(sortType) {
 
-    switch (sortType) {
+    switch(sortType) {
       case SortType.DATE:
         this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
         break;
@@ -299,10 +299,10 @@ export default class Board {
     this._renderSort();
 
     render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
-    this._renderFilmList (films, commentsList);
+    this._renderFilmList(films, commentsList);
 
     //блоки topRated и mostCommented
-    this._renderTopRated (films);
-    this._renderMostCommented (films);
+    this._renderTopRated(films);
+    this._renderMostCommented(films);
   }
 }
