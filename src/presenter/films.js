@@ -169,6 +169,8 @@ export default class Board {
     this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+    remove(prevFilmCard);
+    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
 
     if (this._openedFilmId === updatedFilm.id) {
       const filmDetailsPopupComponent = new FilmDetailsPopupView(updatedFilm);
@@ -180,7 +182,6 @@ export default class Board {
       const prewTopRatedFilmCard = this._topRatedFilmsId.get(updatedFilm.id);
       this._renderFilmCard(prewTopRatedFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
       remove(prewTopRatedFilmCard);
-
       this._topRatedFilmsId.set(updatedFilm.id, this._filmCardComponent);
     }
 
@@ -188,12 +189,8 @@ export default class Board {
       const prewMostCommentedFilmCard = this._mostCommentedFilmsId.get(updatedFilm.id);
       this._renderFilmCard(prewMostCommentedFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
       remove(prewMostCommentedFilmCard);
-
       this._mostCommentedFilmsId.set(updatedFilm.id, this._filmCardComponent);
     }
-
-    remove(prevFilmCard);
-    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
   }
 
   //Список фильмов от-до
