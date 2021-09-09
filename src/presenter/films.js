@@ -47,6 +47,7 @@ export default class Board {
     this._hidePopup = this._hidePopup.bind(this);
     this.__handleFilmPropertyChange = this._handleFilmPropertyChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
   init(films, commentsList) {
@@ -81,14 +82,15 @@ export default class Board {
     this._popupComponent = null;
   }
 
+  _onEscKeyDown(evt) {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this._hidePopup();
+    }
+  }
+
   //Показ попапа
   _showPopup(film, filmDetails, comments) {
-    this._onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        this._hidePopup();
-      }
-    };
 
     if (this._popupComponent === null) {
       this._popupComponent = new PopupView(filmDetails, comments);
@@ -98,7 +100,6 @@ export default class Board {
       document.addEventListener('keydown', this._onEscKeyDown);
 
     } else {
-      document.removeEventListener('keydown', this._onEscKeyDown);
       this._popupComponent.getFilmDetails().getElement().remove();
       this._popupComponent.getComments().getElement().remove();
       this._popupComponent.setFilmDetails(filmDetails);
@@ -139,7 +140,6 @@ export default class Board {
       this._handleFavoritesClick(film);
 
     });
-
   }
 
   //Клик по кнопке Add to whatchlist
@@ -256,7 +256,7 @@ export default class Board {
   }
 
   _sortFilms(sortType) {
-    
+
     switch (sortType) {
       case SortType.DATE:
         this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
