@@ -1,5 +1,6 @@
 import {getRandomInteger} from '../utils/common.js';
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 
 const MIN_IN_LIST = 1;
 const MAX_IN_LIST = 3;
@@ -206,6 +207,7 @@ export const generateFilm = (allComments) => {
   const commentsId = genereteCommentsId(allComments);
 
   return {
+    id: nanoid(),
     comments: commentsId,
     title: title,
     alternativeTitle: title,
