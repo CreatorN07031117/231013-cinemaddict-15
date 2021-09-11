@@ -76,8 +76,8 @@ const generateCommentDay = () => {
 };
 
 
-export const generateComment = (reviewId) => ({
-  id: reviewId,
+export const generateComment = (сommentId) => ({
+  id: сommentId,
   author: generateCommentAuthor(),
   comment: generateCommentText(),
   date: generateCommentDay(),
