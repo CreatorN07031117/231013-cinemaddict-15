@@ -102,7 +102,7 @@ export default class PopupComments extends SmartView {
           emotion: this._data.isEmotion,
         };
         this._comments = [...this._comments, userComment];
-  
+  console.log(this._comments)
         this.updateData(
           { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
         );
