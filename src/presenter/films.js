@@ -83,6 +83,7 @@ export default class Board {
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this._onEscKeyDown);
+    this._film = null;
     this._openedFilmId = null;
     this._popupComponent.getElement().remove();
     this._popupComponent.removeElement();
@@ -102,6 +103,8 @@ export default class Board {
       this._hidePopup();
     }
 
+    this._film = film;
+
     this._popupComponent = new PopupView(filmDetails, comments);
     render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
     this._popupComponent.setClosePopupClickHandler(this._hidePopup);
@@ -119,21 +122,28 @@ export default class Board {
     comments.setFormSubmitHandler(this._handleCommentSubmit);
   }
 
-  _handleCommentDeleteClick (film) {
+  _handleCommentDeleteClick(update) {
+
+    const updateComments = update.comments;
+    const commentsId =  updateComments.map((comment) => comment.id)
 
     const updateFilm = Object.assign(
-      {}, film , {comments: this._changeData},
+      {}, this._film , {comments: commentsId},
     );
-
-    // this._handleFilmPropertyChange(updateFilm);
+    this._handleFilmPropertyChange(updateFilm);
     this._popupComponent.updateFilmDetails(updateFilm);
   }
 
-  _handleCommentSubmit (film) {
-    const updateFilm = Object.assign(
+  _handleCommentSubmit(update) {
+    console.log('jnrh')
+    const updateComments = update.comments;
+    const commentsId = updateComments.map((comment) => comment.id)
+    const newComment = update.comments[commentsId.length-1]
+
+    /*const updateFilm = Object.assign(
       {}, film , {comments: this._changeData},
-    );
-    this._popupComponent.updateFilmDetails(updateFilm);
+    );*/
+    //this._popupComponent.updateFilmDetails(updateFilm);
   }
 
 

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import {dayjs} from 'dayjs';
 import SmartView from './smart.js';
 import {nanoid} from 'nanoid';
 
@@ -9,7 +9,7 @@ const EMOTION_PICTURES = {
   'angry': './images/emoji/angry.png'};
 
 const commentTemplate = (comment) => {
-  const commentDate = dayjs(comment.date).format('YYYY/MM/DD HH:MM');
+  const commentDate = dayjs(comment.date).format('M/D/YYYY H:mm');
 
   return `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
@@ -101,6 +101,7 @@ export default class PopupComments extends SmartView {
         date: dayjs(),
         emotion: this._data.isEmotion,
       };
+
       this._comments = [...this._comments, userComment];
 
       this.updateData(
@@ -131,11 +132,10 @@ export default class PopupComments extends SmartView {
     evt.preventDefault();
     const currentPosition = this.getElement().scrollTop;
     this.getElement().scrollTop = this._data.currentPosition;
-    this._callback.commentDeleteClick(PopupComments.parseDataToComments(this.data));
-
     this.updateData(
       { ...this._data, comments: this._comments},
     );
+    this._callback.commentDeleteClick(PopupComments.parseDataToComments(this._data));
 
     this.getElement().scrollTo(0, currentPosition);
   }
