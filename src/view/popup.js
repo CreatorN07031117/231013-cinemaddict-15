@@ -24,20 +24,8 @@ export default class Popup extends AbstractView {
     return createPopup();
   }
 
-  getFilmDetails() {
-    return this._filmDetails;
-  }
-
-  setFilmDetails(filmDetails) {
-    this._filmDetails = filmDetails;
-  }
-
-  getComments() {
-    return this._comments;
-  }
-
-  setComments(comments) {
-    this._comments = comments;
+  updateFilmDetails(film) {
+    this._filmDetails.updateData(film);
   }
 
   removeElement() {
