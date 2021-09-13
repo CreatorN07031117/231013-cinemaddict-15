@@ -1,4 +1,4 @@
-import {dayjs} from 'dayjs';
+import dayjs from 'dayjs';
 import SmartView from './smart.js';
 import {nanoid} from 'nanoid';
 
@@ -103,11 +103,9 @@ export default class PopupComments extends SmartView {
       };
 
       this._comments = [...this._comments, userComment];
-
       this.updateData(
         { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
       );
-
       this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
     }
   }
@@ -176,7 +174,7 @@ export default class PopupComments extends SmartView {
     this._setInnerHandlers();
 
     this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
-    this.setFormSubmitHandler(this._callback.commentDeleteClick);
+    this.setFormSubmitHandler(this._callback.commentSubmit);
   }
 
 

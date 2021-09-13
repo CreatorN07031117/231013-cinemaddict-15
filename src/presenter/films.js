@@ -135,15 +135,18 @@ export default class Board {
   }
 
   _handleCommentSubmit(update) {
-    console.log('jnrh')
     const updateComments = update.comments;
     const commentsId = updateComments.map((comment) => comment.id)
+    const updateFilm = Object.assign(
+      {}, this._film , {comments: commentsId},
+    );
+    console.log(commentsId)
     const newComment = update.comments[commentsId.length-1]
+    this._commentsList.push(newComment)
+    console.log(updateFilm)
 
-    /*const updateFilm = Object.assign(
-      {}, film , {comments: this._changeData},
-    );*/
-    //this._popupComponent.updateFilmDetails(updateFilm);
+    this._handleFilmPropertyChange(updateFilm);
+    this._popupComponent.updateFilmDetails(updateFilm);
   }
 
 
