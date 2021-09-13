@@ -116,7 +116,7 @@ export default class Board {
     filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
     filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
     comments.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
-    comments.setFormSubmitHandler(this._handleCommentSubmit)
+    comments.setFormSubmitHandler(this._handleCommentSubmit);
   }
 
   _handleCommentDeleteClick (film) {
@@ -125,7 +125,7 @@ export default class Board {
       {}, film , {comments: this._changeData},
     );
 
-   // this._handleFilmPropertyChange(updateFilm);
+    // this._handleFilmPropertyChange(updateFilm);
     this._popupComponent.updateFilmDetails(updateFilm);
   }
 

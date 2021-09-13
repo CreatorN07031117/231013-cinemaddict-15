@@ -9,7 +9,7 @@ const EMOTION_PICTURES = {
   'angry': './images/emoji/angry.png'};
 
 const commentTemplate = (comment) => {
-  const commentDate = dayjs(comment.date).format('M/D/YYYY H:mm');
+  const commentDate = dayjs(comment.date).format('YYYY/MM/DD HH:MM');
 
   return `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
@@ -92,23 +92,24 @@ export default class PopupComments extends SmartView {
   //Отправка формы
   _formSubmitHandler(evt) {
     if (evt.key === 'Enter' && evt.ctrlKey) {
-        evt.preventDefault();
+      evt.preventDefault();
 
-        const userComment = {
-          id: nanoid(),
-          author: 'Name',
-          text: this.getElement().querySelector('.film-details__comment-input').value,
-          date: dayjs(),
-          emotion: this._data.isEmotion,
-        };
-        this._comments = [...this._comments, userComment];
-  console.log(this._comments)
-        this.updateData(
-          { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
-        );
+      const userComment = {
+        id: nanoid(),
+        author: 'Name',
+        comment: this.getElement().querySelector('.film-details__comment-input').value,
+        date: dayjs(),
+        emotion: this._data.isEmotion,
+      };
+      this._comments = [...this._comments, userComment];
 
-        this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
-  }}
+      this.updateData(
+        { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
+      );
+
+      this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
+    }
+  }
 
   setFormSubmitHandler(callback) {
     this._callback.commentSubmit = callback;
@@ -122,7 +123,7 @@ export default class PopupComments extends SmartView {
     }
     const indexComment = this._comments.findIndex(comment => comment.id == evt.target.id);
 
-      this._comments = [
+    this._comments = [
       ...this._comments.slice(0, indexComment),
       ...this._comments.slice(indexComment + 1),
     ];
