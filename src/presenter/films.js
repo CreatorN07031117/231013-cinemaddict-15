@@ -21,14 +21,12 @@ const ITEMS_IN_EXTRA_LIST = 2;
 const bodyElement = document.querySelector('body');
 
 export default class Board {
-  constructor(headerBlock, mainBlock, footerBlock, changeData) {
+  constructor(headerBlock, mainBlock, footerBlock) {
     this._headerBlock = headerBlock;
     this._mainBlock = mainBlock;
     this._footerBlock = footerBlock;
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
     this._currentSortType = SortType.DEFAULT;
-
-    this._changeData = changeData;
 
     this._userRankView = new UserRankView();
     this._siteSortComponent = new SortBlockView();
@@ -104,8 +102,9 @@ export default class Board {
     }
 
     this._film = film;
+    this._popupCommentsComponent = comments;
 
-    this._popupComponent = new PopupView(filmDetails, comments);
+    this._popupComponent = new PopupView(filmDetails, this._popupCommentsComponent);
     render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
     this._popupComponent.setClosePopupClickHandler(this._hidePopup);
     bodyElement.classList.add('hide-overflow');
@@ -113,19 +112,19 @@ export default class Board {
 
     const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
     render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
-    render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
+    render(filmDetailsContainer, this._popupCommentsComponent.getElement(), RenderPosition.BEFOREEND);
 
     filmDetails.setWatchlistClickHandler(this._handleWhatchlistClick);
     filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
     filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
-    comments.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
-    comments.setFormSubmitHandler(this._handleCommentSubmit);
+    this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
+    this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
   }
 
   _handleCommentDeleteClick(update) {
 
     const updateComments = update.comments;
-    const commentsId =  updateComments.map((comment) => comment.id)
+    const commentsId =  updateComments.map((comment) => comment.id);
 
     const updateFilm = Object.assign(
       {}, this._film , {comments: commentsId},
@@ -136,17 +135,17 @@ export default class Board {
 
   _handleCommentSubmit(update) {
     const updateComments = update.comments;
-    const commentsId = updateComments.map((comment) => comment.id)
+    const commentsId = updateComments.map((comment) => comment.id);
     const updateFilm = Object.assign(
       {}, this._film , {comments: commentsId},
     );
-    console.log(commentsId)
-    const newComment = update.comments[commentsId.length-1]
-    this._commentsList.push(newComment)
-    console.log(updateFilm)
+
+    const newComment = update.comments[commentsId.length-1];
+    this._commentsList.push(newComment);
 
     this._handleFilmPropertyChange(updateFilm);
     this._popupComponent.updateFilmDetails(updateFilm);
+    this._popupCommentsComponent.reset(this._commentsList, updateFilm);
   }
 
 

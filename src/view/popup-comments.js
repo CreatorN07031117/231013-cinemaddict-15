@@ -1,5 +1,6 @@
-import dayjs from 'dayjs';
 import SmartView from './smart.js';
+import {convertDate} from '../utils/common.js';
+import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
 
 const EMOTION_PICTURES = {
@@ -8,17 +9,18 @@ const EMOTION_PICTURES = {
   'puke': './images/emoji/puke.png',
   'angry': './images/emoji/angry.png'};
 
+
 const commentTemplate = (comment) => {
-  const commentDate = dayjs(comment.date).format('M/D/YYYY H:mm');
+  const commentDate = convertDate(comment.date);
 
   return `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
              <img src=${EMOTION_PICTURES[comment.emotion]} width="55" height="55" alt="emoji-${comment.emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${comment.author}</p>
+              <p class="film-details__comment-text">${comment.comment}</p>
               <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${comment.comment}</span>
+                <span class="film-details__comment-author">${comment.author}</span>
                 <span class="film-details__comment-day">${commentDate}</span>
                 <button id = "${comment.id}" class="film-details__comment-delete">Delete</button>
               </p>
@@ -29,7 +31,7 @@ const commentTemplate = (comment) => {
 
 const createPopupComments = (data, commentsElement) => `<div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
-      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.length}</span></h3>
+      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
       <ul class="film-details__comments-list">
         ${commentsElement}
       </ul>
@@ -96,7 +98,7 @@ export default class PopupComments extends SmartView {
 
       const userComment = {
         id: nanoid(),
-        author: 'Name',
+        author: 'Movie Buff',
         comment: this.getElement().querySelector('.film-details__comment-input').value,
         date: dayjs(),
         emotion: this._data.isEmotion,
@@ -106,6 +108,8 @@ export default class PopupComments extends SmartView {
       this.updateData(
         { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
       );
+
+
       this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
     }
   }
@@ -120,13 +124,14 @@ export default class PopupComments extends SmartView {
     if (evt.target.tagName !== 'BUTTON') {
       return;
     }
-    const indexComment = this._comments.findIndex(comment => comment.id == evt.target.id);
+
+    const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
 
     this._comments = [
       ...this._comments.slice(0, indexComment),
       ...this._comments.slice(indexComment + 1),
     ];
-    
+
     evt.preventDefault();
     const currentPosition = this.getElement().scrollTop;
     this.getElement().scrollTop = this._data.currentPosition;
@@ -178,15 +183,15 @@ export default class PopupComments extends SmartView {
   }
 
 
-  reset(film) {
+  reset(commentsList, film) {
     this.updateData(
-      PopupComments.parseFilmCommentsToData(film),
+      PopupComments.parseFilmCommentsToData(commentsList, film),
     );
   }
 
   //Входящие данные
   static parseFilmCommentsToData(commentsList, film) {
-    const commentContent = film.comments.map((commentId) => commentsList[commentId]);
+    const commentContent = film.comments.map((commentId) => commentsList.find((comment) => comment.id === commentId));
 
     const filmComments = {
       comments: commentContent,

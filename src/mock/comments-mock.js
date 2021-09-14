@@ -69,7 +69,7 @@ const generateEmotion = () => {
 
 //Генерация comment-day
 const generateCommentDay = () => {
-  const maxDaysGap = 30;
+  const maxDaysGap = 4;
   const daysGap = getRandomInteger(-maxDaysGap, 0);
 
   return dayjs().add(daysGap, 'day').toDate();
