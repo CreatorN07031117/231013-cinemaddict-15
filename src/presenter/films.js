@@ -12,7 +12,7 @@ import PopupView from '../view/popup.js';
 import EmptyListMessageView from '../view/list-empty.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {updateItem} from '../utils/common.js';
-import {SortType} from '../utils/const.js';
+import {SortType, UserAction, UpdateType} from '../utils/const.js';
 import dayjs from 'dayjs';
 
 
@@ -31,7 +31,7 @@ export default class Board {
     this._currentSortType = SortType.DEFAULT;
 
     this._userRankView = new UserRankView();
-    this._siteSortComponent = new SortBlockView();
+    this._siteSortComponent = null;
     this._sectionFilmsComponent = new FilmListView();
     this._topRatedComponent = new TopRatedBlockView();
     this._mostCommentedComponent = new MostCommentedBlockView();
@@ -55,18 +55,57 @@ export default class Board {
     this._handleFavoritesClick = this._handleFavoritesClick.bind(this);
     this._handleCommentDeleteClick = this._handleCommentDeleteClick.bind(this);
     this._handleCommentSubmit = this._handleCommentSubmit.bind(this);
+
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this)
+
+    this._filmsModel.addObserver(this._handleModelEvent);
+    this._commentsModel.addObserver(this._handleModelEvent)
   }
 
   init() {
 
     render(this._headerBlock, this._userRankView, RenderPosition.BEFOREEND);
 
-    this._renderSiteMenu(films);
+    this._renderSiteMenu();
 
-    if(this._films.length > 0) {
-      this._renderFilmsBoard(this._films);
+    if(this._getFilms().length > 0) {
+      this._renderFilmsBoard();
     } else {
       render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
+    }
+  }
+
+  _handleViewAction(actionType, updateType, update) {
+
+    switch (actionType) {
+      case UserAction.UPDATE_FILMCARD:
+        this._tasksModel.updateFilm(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this._tasksModel.addComment(updateType, update);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this._tasksModel.deleteComments(updateType, update);
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, data) {
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this._handleFilmPropertyChange(data);
+      case UpdateType.MINOR:
+        this._handleFilmPropertyChange(data);
+        break;
+      case UpdateType.MAJOR:
+        this. _clearFilmList();
+        this._renderFilms();
+        break;
     }
   }
 
@@ -74,20 +113,20 @@ export default class Board {
 
     switch(this._currentSortType) {
       case SortType.DATE:
-        this._filmsModel.getFilms().sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
+        return this._filmsModel.getFilms().sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
       case SortType.RATING:
-        this._filmsModel.getFilms().sort((a, b) => b.totalRating - a.totalRating);
+        return this._filmsModel.getFilms().sort((filmA, filmB) => filmB.totalRating - filmA.totalRating);
     }
 
     return this._filmsModel.getFilms();
   }
 
   _getComments() {
-    return this.commentsModel.getComments();
+    return this._commentsModel.getComments();
   }
 
-  _renderSiteMenu(films) {
-    this._siteMenu = new SiteMenuView(films);
+  _renderSiteMenu() {
+    this._siteMenu = new SiteMenuView(this._getFilms());
 
     render(this._mainBlock, this._siteMenu, RenderPosition.BEFOREEND);
   }
@@ -146,8 +185,8 @@ export default class Board {
       {}, this._film , {comments: commentsId},
     );
     //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
-    //this._commentsList.splise(indexNumber, 1)
-    this._handleFilmPropertyChange(updateFilm);
+    //this._commentsList.splice(indexNumber, 1)
+
   }
 
   //Добавление комментария
@@ -159,10 +198,10 @@ export default class Board {
     );
 
     const newComment = update.comments[commentsId.length-1];
-    this._commentsList.push(newComment);
-
-    this._handleFilmPropertyChange(updateFilm);
-    this._popupCommentsComponent.reset(this._commentsList, updateFilm);
+    
+    //this._commentsList.push(newComment);
+    this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment)
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, newComment)
   }
 
   //Рендеринг карточки фильма
@@ -205,6 +244,7 @@ export default class Board {
     const updatefilm = Object.assign(
       {}, film , {alreadyWatched: !film.alreadyWatched},
     );
+
     this._handleFilmPropertyChange(updatefilm);
   }
 
@@ -244,18 +284,24 @@ export default class Board {
   }
 
   //Список фильмов от-до
-  _renderFilms(films, comments) {
+  _renderFilms(films) {
     this._filmListContainer = this._sectionFilmsComponent.getElement().querySelector('.films-list__container');
 
-    films.forEach((film) => this._renderFilmCard(this._filmListContainer, film, this._commentsList, RenderPosition.BEFOREEND));
+    films.forEach((film) => {
+      this._renderFilmCard(this._filmListContainer, film, this._getComments(), RenderPosition.BEFOREEND);
+      this._filmsIdList.set(film.id, this._filmCardComponent);
+    });
   }
 
   //Создание списка фильмов
-  _renderFilmList(films, commentsList) {
-    this._renderFilms(0, Math.min(this._films.length, FILM_COUNT_PER_STEP));
+  _renderFilmList() {
+    const filmsCount = this._getFilms().length;
+    const films = this._getFilms().slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
 
-    if (films.length > FILM_COUNT_PER_STEP) {
-      this._renderShowMoreButton(films, commentsList);
+    this._renderFilms(films)
+
+    if (this._getFilms().length > FILM_COUNT_PER_STEP) {
+      this._renderShowMoreButton();
     }
   }
 
@@ -263,16 +309,22 @@ export default class Board {
   _clearFilmList() {
     this._filmsIdList.forEach((filmCard) => remove(filmCard));
     this._filmsIdList.clear();
+
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
     remove(this._showMoreBtnComponent);
   }
 
   //Клик по кнопке show more
   _handleShowMoreBtnClick() {
-    this._renderFilms(this._renderedFilmsCount, this._renderedFilmsCount + FILM_COUNT_PER_STEP);
-    this._renderedFilmsCount += FILM_COUNT_PER_STEP;
+    const filmsCount = this._getFilms().length;
 
-    if (this._renderedFilmsCount >= this._films.length) {
+    const newRenderFilmCount = Math.min(filmsCount, this._renderedFilmsCount +  FILM_COUNT_PER_STEP)
+    const films = this._getFilms().slice(this._renderedFilmsCount, newRenderFilmCount)
+
+    this._renderFilms(films);
+    this._renderedFilmsCount = newRenderFilmCount;
+
+    if (this._renderedFilmsCount >= filmsCount) {
       remove(this._showMoreBtnComponent);
     }
   }
@@ -286,6 +338,12 @@ export default class Board {
 
   //Сортировка
   _renderSort() {
+    if (this._siteSortComponent !== null) {
+      this._siteSortComponent = null;
+    }
+
+    this._siteSortComponent = new SortBlockView();
+
     render(this._mainBlock, this._siteSortComponent, RenderPosition.BEFOREEND);
     this._siteSortComponent.setSortTypeClickHandler(this._handleSortTypeChange);
   }
@@ -295,61 +353,49 @@ export default class Board {
     if (this._currentSortType === sortType) {
       return;
     }
-    this._sortFilms = sortType;
-    this._clearFilmList();
-    this._renderFilmList(this._films, this._commentsList);
-  }
-
-  _sortFilms(sortType) {
-
-    switch(sortType) {
-      case SortType.DATE:
-        this._films.sort((filmA, filmB) => dayjs(filmB.realese).diff(dayjs(filmA.realese)));
-        break;
-      case SortType.RATING:
-        this._films.sort((a, b) => b.totalRating - a.totalRating);
-        break;
-      default:
-        this._films = this._sourcedBoardFilms.slice();
-    }
-
     this._currentSortType = sortType;
+    this._clearFilmList();
+    this._renderFilmList();
   }
 
   //Блоки Toprated и MostCommented
-  _renderTopRated(films) {
+  _renderTopRated() {
+    const films = this._getFilms();
+
     render(this._sectionFilmsComponent, this._topRatedComponent, RenderPosition.BEFOREEND);
     const topRatedList = films.slice().sort((a, b) => b.totalRating - a.totalRating);
 
     topRatedList
       .slice(0, ITEMS_IN_EXTRA_LIST)
       .forEach((film) => {
-        this._renderFilmCard(this._topRatedComponent.getElement().querySelector('.films-list__container'), film, this._commentsList, RenderPosition.BEFOREEND);
+        this._renderFilmCard(this._topRatedComponent.getElement().querySelector('.films-list__container'), film, this._getComments(), RenderPosition.BEFOREEND);
         this._topRatedFilmsId.set(film.id, this._filmCardComponent);
       });
   }
 
-  _renderMostCommented(films) {
+  _renderMostCommented() {
+    const films = this._getFilms();
+
     render(this._sectionFilmsComponent, this._mostCommentedComponent, RenderPosition.BEFOREEND);
     const mostCommentedList = films.sort((a, b) => b.comments.length - a.comments.length);
 
     mostCommentedList
       .slice(0, ITEMS_IN_EXTRA_LIST)
       .forEach((film) => {
-        this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), film, this._commentsList, RenderPosition.BEFOREEND);
+        this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), film, this._getComments(), RenderPosition.BEFOREEND);
         this._mostCommentedFilmsId.set(film.id, this._filmCardComponent);
       });
   }
 
   //Рендеринг доски фильмов
-  _renderFilmsBoard(films, commentsList) {
+  _renderFilmsBoard() {
     this._renderSort();
 
     render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
-    this._renderFilmList(films, commentsList);
+    this._renderFilmList();
 
     //блоки topRated и mostCommented
-    this._renderTopRated(films);
-    this._renderMostCommented(films);
+    this._renderTopRated();
+    this._renderMostCommented();
   }
 }

@@ -4,10 +4,10 @@ import {generateFilm} from './mock/film-card-mock.js';
 import {generateComment} from './mock/comments-mock.js';
 import {render, RenderPosition} from './utils/render.js';
 import FilmsModel from './model/films.js'; 
-import CommentsModel from './model/films.js'; 
+import CommentsModel from './model/comments.js'; 
 
 
-const FILM_COUNT = 7;
+const FILM_COUNT = 6;
 const COMMENTS_COUNT = 50;
 
 const films = new Array(FILM_COUNT).fill().map(() => generateFilm(COMMENTS_COUNT));
