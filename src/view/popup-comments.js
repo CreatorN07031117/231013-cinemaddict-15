@@ -1,5 +1,7 @@
+import SmartView from './smart.js';
+import {convertDate} from '../utils/common.js';
 import dayjs from 'dayjs';
-import AbstractView from './abstract.js';
+import {nanoid} from 'nanoid';
 
 const EMOTION_PICTURES = {
   'smile': './images/emoji/smile.png',
@@ -7,61 +9,50 @@ const EMOTION_PICTURES = {
   'puke': './images/emoji/puke.png',
   'angry': './images/emoji/angry.png'};
 
-const commentTemplate = (review) => {
-  const reviewDate = dayjs(review.date).format('M/D/YYYY H:mm');
+
+const commentTemplate = (comment) => {
+  const commentDate = convertDate(comment.date);
 
   return `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
-             <img src=${EMOTION_PICTURES[review.emotion]} width="55" height="55" alt="emoji-${review.emotion}">
+             <img src=${EMOTION_PICTURES[comment.emotion]} width="55" height="55" alt="emoji-${comment.emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${review.author}</p>
+              <p class="film-details__comment-text">${comment.comment}</p>
               <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${review.comment}</span>
-                <span class="film-details__comment-day">${reviewDate}</span>
-                <button class="film-details__comment-delete">Delete</button>
+                <span class="film-details__comment-author">${comment.author}</span>
+                <span class="film-details__comment-day">${commentDate}</span>
+                <button id = "${comment.id}" class="film-details__comment-delete">Delete</button>
               </p>
             </div>
           </li>`;
 };
 
 
-const createPopupComments = (commentsList, film) => {
-  const commentsIds = film.comments;
-  const commentContent = commentsIds
-    .map((commentId) => commentTemplate(commentsList[commentId]))
-    .join('');
-
-  return `<div class="film-details__bottom-container">
+const createPopupComments = (data, commentsElement) => `<div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
-      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsIds.length}</span></h3>
+      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
       <ul class="film-details__comments-list">
-        ${commentContent}
+        ${commentsElement}
       </ul>
-
       <div class="film-details__new-comment">
-        <div class="film-details__add-emoji-label"></div>
-
-        <label class="film-details__comment-label">
-          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
-        </label>
-
+      <div class="film-details__add-emoji-label">${data.emotion ? `<img src="images/emoji/${data.emotion}.png" width="55" height="55" alt="emoji-${data.emotion}">` : ''}</div>
+      <label class="film-details__comment-label">
+        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${data.newComment}</textarea>
+      </label>
         <div class="film-details__emoji-list">
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
           <label class="film-details__emoji-label" for="emoji-smile">
             <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
           </label>
-
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
           <label class="film-details__emoji-label" for="emoji-sleeping">
             <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
           </label>
-
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
           <label class="film-details__emoji-label" for="emoji-puke">
             <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
           </label>
-
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
           <label class="film-details__emoji-label" for="emoji-angry">
             <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
@@ -70,17 +61,160 @@ const createPopupComments = (commentsList, film) => {
       </div>
     </section>
   </div> `;
-};
 
-export default class PopupComments extends AbstractView {
+
+export default class PopupComments extends SmartView {
   constructor(commentsList, film) {
     super();
 
-    this._film = film;
-    this._commentsList = commentsList;
+    this._data = PopupComments.parseFilmCommentsToData(commentsList, film);
+    this._comments = this._data.comments;
+
+    this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
+    this._commentEmotionChangeHandler = this._commentEmotionChangeHandler.bind(this);
+    this._commentDeleteClickHandler = this._commentDeleteClickHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this.setCommentDeleteClickHandler = this.setCommentDeleteClickHandler.bind(this);
+    this.setFormSubmitHandler = this.setFormSubmitHandler.bind(this);
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createPopupComments(this._commentsList, this._film);
+    this._commentsElement = this._comments.map((comment) => commentTemplate(comment)).join('');
+    return createPopupComments(this._data, this._commentsElement);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
+    this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._commentEmotionChangeHandler);
+  }
+
+  //Отправка формы
+  _formSubmitHandler(evt) {
+    if (evt.key === 'Enter' && evt.ctrlKey) {
+      evt.preventDefault();
+
+      const userComment = {
+        id: nanoid(),
+        author: 'Movie Buff',
+        comment: this.getElement().querySelector('.film-details__comment-input').value,
+        date: dayjs(),
+        emotion: this._data.emotion,
+      };
+
+      this._comments = [...this._comments, userComment];
+      this.updateData(
+        { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
+      );
+
+
+      this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
+    }
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.commentSubmit = callback;
+    this.getElement().querySelector('.film-details__comments-wrap').addEventListener('keydown', this._formSubmitHandler);
+  }
+
+  // Удаление коммента
+  _commentDeleteClickHandler(evt) {
+    if (evt.target.tagName !== 'BUTTON') {
+      return;
+    }
+
+    evt.preventDefault();
+
+    const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
+
+    this._comments = [
+      ...this._comments.slice(0, indexComment),
+      ...this._comments.slice(indexComment + 1),
+    ];
+
+    const currentPosition = this.getElement().scrollTop;
+    this.getElement().scrollTop = this._data.currentPosition;
+    this.updateData(
+      { ...this._data, comments: this._comments},
+    );
+    this._callback.commentDeleteClick(PopupComments.parseDataToComments(this._data));
+
+    this.getElement().scrollTo(0, currentPosition);
+  }
+
+  setCommentDeleteClickHandler(callback) {
+    this._callback.commentDeleteClick = callback;
+    this.getElement().querySelectorAll('.film-details__comment-delete').forEach((deleteButton) =>
+      deleteButton.addEventListener('click', this._commentDeleteClickHandler));
+  }
+
+  //Поле ввода
+  _commentTextInputHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      newComment: evt.target.value,
+    }, true);
+  }
+
+  _commentEmotionChangeHandler(evt) {
+    evt.preventDefault();
+
+    if (evt.target.tagName === 'INPUT') {
+      this.updateData({
+        emotion: evt.target.value,
+      });
+    }
+
+    this.getElement().scrollTo(0, this._data.scrollPosition);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+    this.setFormSubmitHandler(this._callback.commentSubmit);
+  }
+
+  reset(commentsList, film) {
+    this.updateData(
+      PopupComments.parseFilmCommentsToData(commentsList, film),
+    );
+  }
+
+  //Входящие данные
+  static parseFilmCommentsToData(commentsList, film) {
+    const commentContent = film.comments.map((commentId) => commentsList.find((comment) => comment.id === commentId));
+
+    const filmComments = {
+      comments: commentContent,
+    };
+
+    return Object.assign(
+      {},
+      filmComments,
+      {
+        newComment: '',
+        emotion: null,
+        scrollPosition: 0,
+      },
+    );
+  }
+
+  //Исходящие данные из комментария
+  static parseDataToComments(data) {
+    data = Object.assign({}, data);
+
+    if (!data.newComment) {
+      data.newComment = '';
+    }
+
+    if (!data.emotion) {
+      data.emotion = null;
+    }
+
+    delete data.newComment;
+    delete data.emotion;
+
+    return data;
   }
 }

@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import AbstractView from './abstract.js';
-
+import SmartView from './smart.js';
 
 const createFilmsDetailsPopup = (film) => {
   const genresList = film.genres;
@@ -87,33 +86,39 @@ const createFilmsDetailsPopup = (film) => {
 };
 
 
-export default class FilmDetail extends AbstractView  {
+export default class FilmDetail extends SmartView  {
   constructor(film) {
     super();
 
-    this._film = film;
+    this._data = film;
     this._watchlistClicklHandler = this._watchlistClicklHandler.bind(this);
     this._alreadyWatchedClickHandler = this._alreadyWatchedClickHandler.bind(this);
     this._favoritesClickHandler = this._favoritesClickHandler.bind(this);
   }
 
   getTemplate() {
-    return createFilmsDetailsPopup(this._film);
+    return createFilmsDetailsPopup(this._data);
+  }
+
+  restoreHandlers() {
+    this.setWatchlistClickHandler(this._callback.watchlistClick);
+    this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
+    this.setFavoritesClickHandler(this._callback.favoritesClick);
   }
 
   _watchlistClicklHandler(evt) {
     evt.preventDefault();
-    this._callback.watchlistClick();
+    this._callback.watchlistClick(this._data);
   }
 
   _alreadyWatchedClickHandler(evt) {
     evt.preventDefault();
-    this._callback.alreadyWatchedClick();
+    this._callback.alreadyWatchedClick(this._data);
   }
 
   _favoritesClickHandler(evt) {
     evt.preventDefault();
-    this._callback.favoritesClick();
+    this._callback.favoritesClick(this._data);
   }
 
   setWatchlistClickHandler(callback) {

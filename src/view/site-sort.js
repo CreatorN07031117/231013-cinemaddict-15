@@ -24,8 +24,10 @@ export default class SortBlock extends AbstractView {
     if (evt.target.tagName !== 'A') {
       return;
     }
-
     evt.preventDefault();
+    this.getElement().querySelector('.sort__button--active').classList.remove('sort__button--active');
+    evt.target.classList.add('sort__button--active');
+
     this._callback.sortTypeChange(evt.target.dataset.sortType);
   }
 

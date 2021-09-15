@@ -45,9 +45,14 @@ export default class Board {
 
     this._handleShowMoreBtnClick = this._handleShowMoreBtnClick.bind(this);
     this._hidePopup = this._hidePopup.bind(this);
-    this.__handleFilmPropertyChange = this._handleFilmPropertyChange.bind(this);
+    this._handleFilmPropertyChange = this._handleFilmPropertyChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
+    this._handleWhatchlistClick = this._handleWhatchlistClick.bind(this);
+    this._handleAlreadyWatchedClick = this._handleAlreadyWatchedClick.bind(this);
+    this._handleFavoritesClick = this._handleFavoritesClick.bind(this);
+    this._handleCommentDeleteClick = this._handleCommentDeleteClick.bind(this);
+    this._handleCommentSubmit = this._handleCommentSubmit.bind(this);
   }
 
   init(films, commentsList) {
@@ -76,6 +81,7 @@ export default class Board {
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this._onEscKeyDown);
+    this._film = null;
     this._openedFilmId = null;
     this._popupComponent.getElement().remove();
     this._popupComponent.removeElement();
@@ -91,29 +97,57 @@ export default class Board {
 
   //Показ попапа
   _showPopup(film, filmDetails, comments) {
-
-    if (this._popupComponent === null) {
-      this._popupComponent = new PopupView(filmDetails, comments);
-      render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
-      this._popupComponent.setClosePopupClickHandler(this._hidePopup);
-      bodyElement.classList.add('hide-overflow');
-      document.addEventListener('keydown', this._onEscKeyDown);
-
-    } else {
-      this._popupComponent.getFilmDetails().getElement().remove();
-      this._popupComponent.getComments().getElement().remove();
-      this._popupComponent.setFilmDetails(filmDetails);
-      this._popupComponent.setComments(comments);
+    if (this._popupComponent !== null) {
+      this._hidePopup();
     }
+
+    this._film = film;
+    this._popupCommentsComponent = comments;
+
+    this._popupComponent = new PopupView(filmDetails, this._popupCommentsComponent);
+    render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
+    this._popupComponent.setClosePopupClickHandler(this._hidePopup);
+    bodyElement.classList.add('hide-overflow');
+    document.addEventListener('keydown', this._onEscKeyDown);
 
     const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
     render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
-    render(filmDetailsContainer, comments.getElement(), RenderPosition.BEFOREEND);
+    render(filmDetailsContainer, this._popupCommentsComponent.getElement(), RenderPosition.BEFOREEND);
 
-    filmDetails.setWatchlistClickHandler(() => this._handleWhatchlistClick(film));
-    filmDetails.setAlreadyWatchedClickHandler(() => this._handleAlreadyWatchedClick(film));
-    filmDetails.setFavoritesClickHandler(() => this._handleFavoritesClick(film));
+    filmDetails.setWatchlistClickHandler(this._handleWhatchlistClick);
+    filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
+    filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
+    this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
+    this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
   }
+
+  _handleCommentDeleteClick(update) {
+
+    const updateComments = update.comments;
+    const commentsId =  updateComments.map((comment) => comment.id);
+
+    const updateFilm = Object.assign(
+      {}, this._film , {comments: commentsId},
+    );
+    //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
+    //this._commentsList.splice(indexNumber, 1)
+    this._handleFilmPropertyChange(updateFilm);
+  }
+
+  _handleCommentSubmit(update) {
+    const updateComments = update.comments;
+    const commentsId = updateComments.map((comment) => comment.id);
+    const updateFilm = Object.assign(
+      {}, this._film, {comments: commentsId},
+    );
+
+    const newComment = update.comments[commentsId.length-1];
+    this._commentsList.push(newComment);
+
+    this._handleFilmPropertyChange(updateFilm);
+    this._popupCommentsComponent.reset(this._commentsList, updateFilm);
+  }
+
 
   //Рендеринг карточки фильма
   _renderFilmCard(filmsListElement, film, commentList, renderPosition) {
@@ -175,9 +209,7 @@ export default class Board {
     this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
 
     if (this._openedFilmId === updatedFilm.id) {
-      const filmDetailsPopupComponent = new FilmDetailsPopupView(updatedFilm);
-      const commentsPopupComponet = new PopupCommentsView(this._commentsList, updatedFilm);
-      this._showPopup(updatedFilm, filmDetailsPopupComponent, commentsPopupComponet);
+      this._popupComponent.updateFilmDetails(updatedFilm);
     }
 
     if (this._topRatedFilmsId.has(updatedFilm.id)) {
