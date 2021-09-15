@@ -130,7 +130,7 @@ export default class Board {
       {}, this._film , {comments: commentsId},
     );
     //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
-    //this._commentsList.splise(indexNumber, 1)
+    //this._commentsList.splice(indexNumber, 1)
     this._handleFilmPropertyChange(updateFilm);
   }
 
