@@ -129,22 +129,22 @@ export default class Board {
     const updateFilm = Object.assign(
       {}, this._film , {comments: commentsId},
     );
+    //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
+    //this._commentsList.splise(indexNumber, 1)
     this._handleFilmPropertyChange(updateFilm);
-    this._popupComponent.updateFilmDetails(updateFilm);
   }
 
   _handleCommentSubmit(update) {
     const updateComments = update.comments;
     const commentsId = updateComments.map((comment) => comment.id);
     const updateFilm = Object.assign(
-      {}, this._film , {comments: commentsId},
+      {}, this._film, {comments: commentsId},
     );
 
     const newComment = update.comments[commentsId.length-1];
     this._commentsList.push(newComment);
 
     this._handleFilmPropertyChange(updateFilm);
-    this._popupComponent.updateFilmDetails(updateFilm);
     this._popupCommentsComponent.reset(this._commentsList, updateFilm);
   }
 

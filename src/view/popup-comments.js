@@ -36,7 +36,7 @@ const createPopupComments = (data, commentsElement) => `<div class="film-details
         ${commentsElement}
       </ul>
       <div class="film-details__new-comment">
-      <div class="film-details__add-emoji-label">${data.isEmotion ? `<img src="images/emoji/${data.isEmotion}.png" width="55" height="55" alt="emoji-${data.isEmotion}">` : ''}</div>
+      <div class="film-details__add-emoji-label">${data.emotion ? `<img src="images/emoji/${data.emotion}.png" width="55" height="55" alt="emoji-${data.emotion}">` : ''}</div>
       <label class="film-details__comment-label">
         <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${data.newComment}</textarea>
       </label>
@@ -101,7 +101,7 @@ export default class PopupComments extends SmartView {
         author: 'Movie Buff',
         comment: this.getElement().querySelector('.film-details__comment-input').value,
         date: dayjs(),
-        emotion: this._data.isEmotion,
+        emotion: this._data.emotion,
       };
 
       this._comments = [...this._comments, userComment];
@@ -125,6 +125,8 @@ export default class PopupComments extends SmartView {
       return;
     }
 
+    evt.preventDefault();
+
     const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
 
     this._comments = [
@@ -132,7 +134,6 @@ export default class PopupComments extends SmartView {
       ...this._comments.slice(indexComment + 1),
     ];
 
-    evt.preventDefault();
     const currentPosition = this.getElement().scrollTop;
     this.getElement().scrollTop = this._data.currentPosition;
     this.updateData(
@@ -162,7 +163,7 @@ export default class PopupComments extends SmartView {
 
     if (evt.target.tagName === 'INPUT') {
       this.updateData({
-        isEmotion: evt.target.value,
+        emotion: evt.target.value,
       });
     }
 
@@ -202,7 +203,7 @@ export default class PopupComments extends SmartView {
       filmComments,
       {
         newComment: '',
-        isEmotion: null,
+        emotion: null,
         scrollPosition: 0,
       },
     );
@@ -216,12 +217,12 @@ export default class PopupComments extends SmartView {
       data.newComment = '';
     }
 
-    if (!data.isEmotion) {
-      data.isEmotion = null;
+    if (!data.emotion) {
+      data.emotion = null;
     }
 
     delete data.newComment;
-    delete data.isEmotion;
+    delete data.emotion;
 
     return data;
   }
