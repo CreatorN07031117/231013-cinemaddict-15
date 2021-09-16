@@ -80,13 +80,13 @@ export default class Board {
 
     switch (actionType) {
       case UserAction.UPDATE_FILMCARD:
-        this._tasksModel.updateFilm(updateType, update);
+        this._filmsModel.updateFilm(updateType, update);
         break;
       case UserAction.ADD_COMMENT:
-        this._tasksModel.addComment(updateType, update);
+        this._commentsModel.addComment(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
-        this._tasksModel.deleteComments(updateType, update);
+        this._commentsModel.deleteComments(updateType, update);
         break;
     }
   }
@@ -201,7 +201,7 @@ export default class Board {
     
     //this._commentsList.push(newComment);
     this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment)
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, newComment)
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updateFilm)
   }
 
   //Рендеринг карточки фильма
@@ -258,11 +258,11 @@ export default class Board {
 
   //Метод изменения свойства в фильме
   _handleFilmPropertyChange(updatedFilm) {
-    this._films = updateItem(this._films, updatedFilm);
+    /*this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
     remove(prevFilmCard);
-    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
+    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);*/
 
     if (this._openedFilmId === updatedFilm.id) {
       this._popupComponent.updateFilmDetails(updatedFilm);
