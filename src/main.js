@@ -7,7 +7,7 @@ import FilmsModel from './model/films.js';
 import CommentsModel from './model/comments.js'; 
 
 
-const FILM_COUNT = 6;
+const FILM_COUNT = 5;
 const COMMENTS_COUNT = 50;
 
 const films = new Array(FILM_COUNT).fill().map(() => generateFilm(COMMENTS_COUNT));

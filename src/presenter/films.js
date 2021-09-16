@@ -181,9 +181,10 @@ export default class Board {
     const updateComments = update.comments;
     const commentsId =  updateComments.map((comment) => comment.id);
 
-    const updateFilm = Object.assign(
+    const updatedFilm = Object.assign(
       {}, this._film , {comments: commentsId},
     );
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm)
     //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
     //this._commentsList.splice(indexNumber, 1)
 
@@ -191,17 +192,16 @@ export default class Board {
 
   //Добавление комментария
   _handleCommentSubmit(update) {
-    const updateComments = update.comments;
-    const commentsId = updateComments.map((comment) => comment.id);
-    const updateFilm = Object.assign(
+    const updatedComments = update.comments;
+    const commentsId = updatedComments.map((comment) => comment.id);
+    const updatedFilm = Object.assign(
       {}, this._film, {comments: commentsId},
     );
 
     const newComment = update.comments[commentsId.length-1];
     
-    //this._commentsList.push(newComment);
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm)
     this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment)
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updateFilm)
   }
 
   //Рендеринг карточки фильма
@@ -233,36 +233,37 @@ export default class Board {
 
   //Клик по кнопке Add to whatchlist
   _handleWhatchlistClick(film) {
-    const updatefilm = Object.assign(
+    const updatedFilm = Object.assign(
       {}, film , {watchlist: !film.watchlist},
     );
-    this._handleFilmPropertyChange(updatefilm);
+
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.PATCH, updatedFilm);
   }
 
   //Клик по кнопке Mark as watched
   _handleAlreadyWatchedClick(film) {
-    const updatefilm = Object.assign(
+    const updatedFilm = Object.assign(
       {}, film , {alreadyWatched: !film.alreadyWatched},
     );
 
-    this._handleFilmPropertyChange(updatefilm);
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.PATCH, updatedFilm);
   }
 
   //Клик по кнопке Add to Favorite
   _handleFavoritesClick(film) {
-    const updatefilm = Object.assign(
+    const updatedFilm = Object.assign(
       {}, film , {favorite: !film.favorite},
     );
-    this._handleFilmPropertyChange(updatefilm);
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.PATCH, updatedFilm);
   }
 
   //Метод изменения свойства в фильме
   _handleFilmPropertyChange(updatedFilm) {
-    /*this._films = updateItem(this._films, updatedFilm);
+    //this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
-    this._renderFilmCard(prevFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+    this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
-    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);*/
+    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
 
     if (this._openedFilmId === updatedFilm.id) {
       this._popupComponent.updateFilmDetails(updatedFilm);
@@ -270,14 +271,14 @@ export default class Board {
 
     if (this._topRatedFilmsId.has(updatedFilm.id)) {
       const prewTopRatedFilmCard = this._topRatedFilmsId.get(updatedFilm.id);
-      this._renderFilmCard(prewTopRatedFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+      this._renderFilmCard(prewTopRatedFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
       remove(prewTopRatedFilmCard);
       this._topRatedFilmsId.set(updatedFilm.id, this._filmCardComponent);
     }
 
     if (this._mostCommentedFilmsId.has(updatedFilm.id)) {
       const prewMostCommentedFilmCard = this._mostCommentedFilmsId.get(updatedFilm.id);
-      this._renderFilmCard(prewMostCommentedFilmCard, updatedFilm, this._commentsList, RenderPosition.AFTEREND);
+      this._renderFilmCard(prewMostCommentedFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
       remove(prewMostCommentedFilmCard);
       this._mostCommentedFilmsId.set(updatedFilm.id, this._filmCardComponent);
     }

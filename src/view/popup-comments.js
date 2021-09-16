@@ -72,7 +72,6 @@ export default class PopupComments extends SmartView {
 
     this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
     this._commentEmotionChangeHandler = this._commentEmotionChangeHandler.bind(this);
-    this._scrollPopupHandler = this._scrollPopupHandler.bind(this);
     this._commentDeleteClickHandler = this._commentDeleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this.setCommentDeleteClickHandler = this.setCommentDeleteClickHandler.bind(this);
@@ -88,7 +87,6 @@ export default class PopupComments extends SmartView {
   _setInnerHandlers() {
     this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
     this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._commentEmotionChangeHandler);
-    this.getElement().addEventListener('scroll', this._scrollPopupHandler);
   }
 
   //Отправка формы
@@ -170,19 +168,12 @@ export default class PopupComments extends SmartView {
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
-  _scrollPopupHandler(evt) {
-    this.updateData({
-      scrollPosition: evt.target.scrollTop,
-    }, true);
-  }
-
   restoreHandlers() {
     this._setInnerHandlers();
 
     this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
     this.setFormSubmitHandler(this._callback.commentSubmit);
   }
-
 
   reset(commentsList, film) {
     this.updateData(
@@ -192,6 +183,7 @@ export default class PopupComments extends SmartView {
 
   //Входящие данные
   static parseFilmCommentsToData(commentsList, film) {
+    console.log(film)
     const commentContent = film.comments.map((commentId) => commentsList.find((comment) => comment.id === commentId));
 
     const filmComments = {
