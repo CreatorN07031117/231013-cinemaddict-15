@@ -107,7 +107,6 @@ export default class PopupComments extends SmartView {
         { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
       );
 
-
       this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
     }
   }
@@ -183,7 +182,7 @@ export default class PopupComments extends SmartView {
 
   //Входящие данные
   static parseFilmCommentsToData(commentsList, film) {
-    console.log(film)
+
     const commentContent = film.comments.map((commentId) => commentsList.find((comment) => comment.id === commentId));
 
     const filmComments = {

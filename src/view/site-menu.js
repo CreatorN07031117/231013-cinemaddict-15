@@ -1,54 +1,34 @@
 import AbstractView from './abstract.js';
 
-const countFilms = (films) => {
-  let whatchlistCounter = 0;
-  let favoriteCounter = 0;
-  let historyCounter = 0;
-
-  for (const film of films) {
-    const watchlist = film.watchlist;
-    const alreadyWatched = film.alreadyWatched;
-    const favorite = film.favorite;
-
-    if (watchlist) {
-      whatchlistCounter++;
-    }
-
-    if (alreadyWatched) {
-      historyCounter++;
-    }
-
-    if (favorite) {
-      favoriteCounter++;
-    }
-  }
-
-  return [whatchlistCounter, historyCounter, favoriteCounter];
-};
-
-
-const createSiteMenuTemplate = (films) => {
-  const filmsCounter = countFilms(films);
-
-  return `<nav class="main-navigation">
-    <div class="main-navigation__items">
-      <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-      <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${filmsCounter[0]}</span></a>
-      <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">${filmsCounter[1]}</span></a>
-      <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">${filmsCounter[2]}</span></a>
-    </div>
-    <a href="#stats" class="main-navigation__additional">Stats</a>
-  </nav>`;
-};
+const createSiteMenuTemplate = () =>  `<nav class="main-navigation">
+      <a href="#stats" class="main-navigation__additional" data-filter="stats">Stats</a>
+    </nav>
+  `;
 
 export default class SiteMenu extends AbstractView {
-  constructor(films) {
+  constructor() {
     super();
 
-    this._films = films;
+    this._clickHandler = this._clickHandler.bind(this);
+  }
+
+  _clickHandler(evt) {
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    evt.preventDefault();
+    this._handler.click(evt.target);
   }
 
   getTemplate() {
-    return createSiteMenuTemplate(this._films);
+    return createSiteMenuTemplate();
+  }
+
+  setClickHandler(handler) {
+    this._handler.click = handler;
+
+    this.getElement()
+      .addEventListener('click', this._clickHandler);
   }
 }
