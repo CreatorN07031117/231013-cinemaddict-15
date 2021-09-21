@@ -22,3 +22,17 @@ export const FilterType = {
   HISTORY: 'history',
   FAVORITES: 'favorites',
 };
+
+export const MaxFilmsUserRank = {
+  NO_RATING: 0,
+  NOVICE: 10,
+  FAN: 20,
+};
+
+export const StatsType = {
+  ALL: `all-time`,
+  TODAY: `today`,
+  WEEK: `week`,
+  MONTH: `month`,
+  YEAR: `year`
+};

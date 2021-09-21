@@ -2,6 +2,7 @@ import SmartView from './smart.js';
 import {convertDate} from '../utils/common.js';
 import dayjs from 'dayjs';
 import {nanoid} from 'nanoid';
+import he from 'he';
 
 const EMOTION_PICTURES = {
   'smile': './images/emoji/smile.png',
@@ -38,7 +39,7 @@ const createPopupComments = (data, commentsElement) => `<div class="film-details
       <div class="film-details__new-comment">
       <div class="film-details__add-emoji-label">${data.emotion ? `<img src="images/emoji/${data.emotion}.png" width="55" height="55" alt="emoji-${data.emotion}">` : ''}</div>
       <label class="film-details__comment-label">
-        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${data.newComment}</textarea>
+        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${he.encode(data.newComment)}</textarea>
       </label>
         <div class="film-details__emoji-list">
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">

@@ -38,3 +38,4 @@ export const updateItem = (items, update) => {
   ];
 };
 
+export const addLeadZero = (value) => value < 10 ? `0${value}` : String(value);

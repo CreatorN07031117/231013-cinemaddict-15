@@ -30,7 +30,6 @@ export default class Board {
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
     this._currentSortType = SortType.DEFAULT;
 
-    this._userRankView = new UserRankView();
     this._siteSortComponent = null;
     this._sectionFilmsComponent = new FilmListView();
     this._topRatedComponent = new TopRatedBlockView();
@@ -65,8 +64,7 @@ export default class Board {
   }
 
   init() {
-
-    render(this._headerBlock, this._userRankView, RenderPosition.BEFOREEND);
+    this._renderUserRank()
 
     if(this._getFilms().length > 0) {
       this._renderFilmsBoard();
@@ -96,6 +94,7 @@ export default class Board {
         break;
       case UpdateType.MINOR:
         this._handleFilmPropertyChange(data);
+        this._updateUserRank();
         break;
       case UpdateType.MAJOR:
         this._clearFilmList({resetRenderedTaskCount: true, resetSortType: true});
@@ -388,6 +387,20 @@ export default class Board {
         this._renderFilmCard(this._mostCommentedComponent.getElement().querySelector('.films-list__container'), film, this._getComments(), RenderPosition.BEFOREEND);
         this._mostCommentedFilmsId.set(film.id, this._filmCardComponent);
       });
+  }
+
+  _renderUserRank() {
+    const films = this._getFilms();
+
+    this._userRankView = new UserRankView(films);
+    render(this._headerBlock, this._userRankView, RenderPosition.BEFOREEND);
+  }
+
+  _updateUserRank() {
+    remove(this._userRankView);
+    this._userRankView = null;
+
+    this._renderUserRank();
   }
 
   //Рендеринг доски фильмов
