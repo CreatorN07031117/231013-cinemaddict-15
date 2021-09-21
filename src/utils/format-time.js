@@ -70,3 +70,14 @@ export default class FormatTime {
     return dayjs.duration(-years, `year`).humanize(true);
   }
 }
+
+
+export const getDurationHours = (runtime) => Math.floor(runtime/60);
+
+
+export const getDurationMinutes = (runtime) => {
+  const hours = Math.floor(runtime/60);
+  const minutes = runtime - hours*60;
+  
+  return minutes;
+}

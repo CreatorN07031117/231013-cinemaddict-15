@@ -1,7 +1,7 @@
 import StatisticView from '../view/statistic.js';
 import {FormatTime} from '../utils/format-time.js';
 import {render} from '../utils/render.js'
-import {StatsType} from '../utils/const.js';
+import {StatsType, getDurationHours, getDurationMinutes} from '../utils/const.js';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
@@ -57,8 +57,9 @@ export default class StatisticPresenter {
     const userRank = 'userRank';
 
     const totalDuration = filmsWatched.reduce((count, film) => count + film.runtime);
-    const totalDurationHours = FormatTime.getDurationHours(totalDuration);
-    const totalDurationMinutes = FormatTime.getDurationMinutes(totalDuration);
+    console.log(totalDuration)
+    const totalDurationHours = getDurationHours(totalDuration);
+    const totalDurationMinutes = getDurationMinutes(totalDuration);
 
     const allFilmsGenres = filmsWatched.reduce((allGenres, film) => {
       allGenres.push(...film.genres);
