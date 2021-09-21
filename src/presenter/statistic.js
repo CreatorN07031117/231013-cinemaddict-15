@@ -29,38 +29,39 @@ export default class StatisticPresenter {
     switch (currentFilter) {
       case StatsType.ALL:
         filmsWatched = films
-          .filter((film) => film.userInfo.isWatched);
+          .filter((film) => film.alreadyWatched);
         break;
 
       case StatsType.TODAY:
         filmsWatched = films
-          .filter((film) => film.userInfo.isWatched && dayjs(film.userInfo.watchingDate).isSame(currentDate, `day`));
+          .filter((film) => film.alreadyWatched && dayjs(film.watchingDate).isSame(currentDate, `day`));
         break;
 
       case StatsType.WEEK:
         filmsWatched = films
-          .filter((film) => film.userInfo.isWatched && dayjs(film.userInfo.watchingDate).isBetween(weekAgoDate, currentDate));
+          .filter((film) => film.alreadyWatched && dayjs(film.watchingDate).isBetween(weekAgoDate, currentDate));
         break;
 
       case StatsType.MONTH:
         filmsWatched = films
-          .filter((film) => film.userInfo.isWatched && dayjs(film.userInfo.watchingDate).isBetween(monthAgoDate, currentDate));
+          .filter((film) => film.alreadyWatched && dayjs(film.watchingDate).isBetween(monthAgoDate, currentDate));
         break;
 
       case StatsType.YEAR:
         filmsWatched = films
-          .filter((film) => film.userInfo.isWatched && dayjs(film.userInfo.watchingDate).isBetween(yearAgoDate, currentDate));
+          .filter((film) => film.alreadyWatched && dayjs(film.watchingDate).isBetween(yearAgoDate, currentDate));
         break;
     }
 
     const watchedFilmsCount = filmsWatched.length;
     const userRank = 'userRank';
-    const totalDuration = filmsWatched.reduce((count, film) => count + film.filmInfo.runtime, 0);
+
+    const totalDuration = filmsWatched.reduce((count, film) => count + film.runtime);
     const totalDurationHours = FormatTime.getDurationHours(totalDuration);
     const totalDurationMinutes = FormatTime.getDurationMinutes(totalDuration);
 
     const allFilmsGenres = filmsWatched.reduce((allGenres, film) => {
-      allGenres.push(...film.filmInfo.genres);
+      allGenres.push(...film.genres);
 
       return allGenres;
     }, []);

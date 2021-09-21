@@ -37,8 +37,9 @@ const filterModel = new FilterModel();
 
 const filmsPresenter = new FilmsPresenter(siteHeaderElement, siteMainElement, siteFooterElement, filmsModel, commentsModel, filterModel);
 const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel, filmsModel);
-
+const statisticPresenter = new StatisticPresenter(siteMainElement, filmsModel)
 filterMenuPresenter.init();
-filmsPresenter.init();
+//filmsPresenter.init();
+statisticPresenter.init();
 
 render(siteFooterElement, new FooterStaticticsView(films), RenderPosition.BEFOREEND);

@@ -15,11 +15,13 @@ export default class FormatTime {
   }
 
   static getDurationHours(runtime) {
-    return Math.floor(dayjs.duration(runtime, `m`).asHours());
+    return Math.floor(runtime/60);
   }
 
   static getDurationMinutes(runtime) {
-    return dayjs.duration(runtime, `m`).minutes();
+    const hours = Math.floor(runtime/60);
+    const minutes = runtime - hours*60;
+    return minutes;
   }
 
   static getFullDateMonthAsString(date) {

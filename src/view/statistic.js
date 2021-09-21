@@ -115,7 +115,6 @@ export default class Statistic extends SmartView {
           backgroundColor: `#ffe800`,
           hoverBackgroundColor: `#ffe800`,
           anchor: `start`,
-          barThickness: 24
         }]
       },
       options: {
@@ -141,6 +140,7 @@ export default class Statistic extends SmartView {
               display: false,
               drawBorder: false
             },
+            barThickness: 24
           }],
           xAxes: [{
             ticks: {
