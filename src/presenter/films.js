@@ -10,6 +10,7 @@ import FilmDetailsPopupView from '../view/film-details-popup.js';
 import PopupCommentsView from '../view/popup-comments.js';
 import PopupView from '../view/popup.js';
 import EmptyListMessageView from '../view/list-empty.js';
+import LoadingView from '../view/loading.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {SortType, UserAction, UpdateType} from '../utils/const.js';
 import dayjs from 'dayjs';
@@ -29,6 +30,7 @@ export default class Board {
     this._filterModel = filterModel;
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
     this._currentSortType = SortType.DEFAULT;
+    this._isLoading = true;
 
     this._siteSortComponent = null;
     this._sectionFilmsComponent = new FilmListView();
@@ -36,6 +38,7 @@ export default class Board {
     this._mostCommentedComponent = new MostCommentedBlockView();
     this._emptyListMessage = new EmptyListMessageView();
     this._showMoreBtnComponent = new ShowMoretBtnView();
+    this._loadingComponent = new LoadingView();
 
     this._popupComponent = null;
     this._filmDetailsPopupComponent = null;
@@ -65,12 +68,7 @@ export default class Board {
 
   init() {
     this._renderUserRank();
-
-    if(this._getFilms().length > 0) {
-      this._renderFilmsBoard();
-    } else {
-      render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
-    }
+    this._renderFilmsBoard();
   }
 
   _handleViewAction(actionType, updateType, update) {
@@ -100,6 +98,11 @@ export default class Board {
         this._clearFilmList({resetRenderedTaskCount: true, resetSortType: true});
         this._renderFilmList();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderFilmsBoard();
+        break;
     }
   }
 
@@ -120,6 +123,10 @@ export default class Board {
 
   _getComments() {
     return this._commentsModel.getComments();
+  }
+
+  _renderLoading() {
+    render(this._mainBlock, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
   //Сокрытие попапа
@@ -176,8 +183,6 @@ export default class Board {
       {}, this._film , {comments: commentsId},
     );
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-    //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
-    //this._commentsList.splice(indexNumber, 1)
     this._handleFilmPropertyChange(updateFilm);
   }
 
@@ -228,6 +233,7 @@ export default class Board {
     this._clearFilmList();
     remove(this._topRatedComponent);
     remove(this._mostCommentedComponent);
+    remove(this._loadingComponent);
     remove(this._sectionFilmsComponent);
   }
 
@@ -259,7 +265,6 @@ export default class Board {
 
   //Метод изменения свойства в фильме
   _handleFilmPropertyChange(updatedFilm) {
-    //this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
@@ -413,13 +418,18 @@ export default class Board {
 
   //Рендеринг доски фильмов
   _renderFilmsBoard() {
-    this._renderSort();
+    if(this._getFilms().length > 0) {
+      this._renderSort();
 
-    render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
-    this._renderFilmList();
+      render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
+      this._renderFilmList();
 
-    //блоки topRated и mostCommented
-    this._renderTopRated();
-    this._renderMostCommented();
+      //блоки topRated и mostCommented
+      this._renderTopRated();
+      this._renderMostCommented();
+    } else {
+      render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
+      remove(this._loadingComponent);
+    }
   }
 }
