@@ -96,10 +96,7 @@ export default class PopupComments extends SmartView {
       evt.preventDefault();
 
       const userComment = {
-        id: nanoid(),
-        author: 'Movie Buff',
         comment: this.getElement().querySelector('.film-details__comment-input').value,
-        date: dayjs(),
         emotion: this._data.emotion,
       };
 

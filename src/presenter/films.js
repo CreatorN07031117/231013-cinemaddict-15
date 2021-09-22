@@ -21,13 +21,14 @@ const ITEMS_IN_EXTRA_LIST = 2;
 const bodyElement = document.querySelector('body');
 
 export default class Board {
-  constructor(headerBlock, mainBlock, footerBlock, filmsModel, commentsModel, filterModel) {
+  constructor(headerBlock, mainBlock, footerBlock, filmsModel, commentsModel, filterModel, api) {
     this._headerBlock = headerBlock;
     this._mainBlock = mainBlock;
     this._footerBlock = footerBlock;
     this._filmsModel = filmsModel;
     this._commentsModel = commentsModel;
     this._filterModel = filterModel;
+    this._api = api;
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
     this._currentSortType = SortType.DEFAULT;
     this._isLoading = true;
@@ -75,13 +76,19 @@ export default class Board {
 
     switch (actionType) {
       case UserAction.UPDATE_FILMCARD:
-        this._filmsModel.updateFilm(updateType, update);
+        this._api.updateFilm(update).then((response) => {
+          this._filmsModel.updateFilm(updateType, response);
+        });
         break;
       case UserAction.ADD_COMMENT:
-        this._commentsModel.addComment(updateType, update);
+        this._api.addComment(update).then((response) => {
+          this._commentsModel.addComment(updateType, response);
+        });
         break;
       case UserAction.DELETE_COMMENT:
-        this._commentsModel.deleteComments(updateType, update);
+        this._api.deleteComment(update).then((response) => {
+          this._commentsModel.deleteComments(updateType, response);
+        });
         break;
     }
   }
