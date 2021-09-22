@@ -28,9 +28,9 @@ commentsModel.setComments(commentsList);
 const filterModel = new FilterModel();
 
 const filmsPresenter = new FilmsPresenter(siteHeaderElement, siteMainElement, siteFooterElement, filmsModel, commentsModel, filterModel);
-const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel, filmsModel);
+const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel, filmsModel, filmsPresenter);
 
 filterMenuPresenter.init();
-//filmsPresenter.init();
+filmsPresenter.init();
 
 render(siteFooterElement, new FooterStaticticsView(films), RenderPosition.BEFOREEND);

@@ -223,6 +223,14 @@ export default class Board {
     });
   }
 
+  destroy() {
+    remove(this._siteSortComponent);
+    this._clearFilmList();
+    remove(this._topRatedComponent);
+    remove(this._mostCommentedComponent);
+    remove(this._sectionFilmsComponent);
+  }
+
   //Клик по кнопке Add to whatchlist
   _handleWhatchlistClick(film) {
     const updatedFilm = Object.assign(

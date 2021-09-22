@@ -6,10 +6,11 @@ import FilmsFilterView from '../view/site-filters.js';
 import StatisticPresenter from './statistic.js';
 
 export default class FilterMenu {
-  constructor(mainBlock, filterModel, filmsModel) {
+  constructor(mainBlock, filterModel, filmsModel, filmPresenter) {
     this._mainBlock = mainBlock;
     this._filterModel = filterModel;
     this._filmsModel = filmsModel;
+    this._filmPresenter = filmPresenter;
 
     this._currentFilter = null;
     this._filterComponent = null;
@@ -19,6 +20,7 @@ export default class FilterMenu {
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
     this._handleStats = this._handleStats.bind(this);
+    this._handleFiltersClick = this._handleFiltersClick.bind(this);
 
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
@@ -33,7 +35,7 @@ export default class FilterMenu {
     const prevFilterComponent = this._filterComponent;
 
     render(this._mainBlock, this._siteMenuComponent, RenderPosition.AFTERBEGIN);
-    this._siteMenuComponent.setClickStatsHandler(this._handleStats)
+    this._siteMenuComponent.setClickStatsHandler(this._handleStats);
     this._filterContainer = this._siteMenuComponent.getElement();
 
     this._filterComponent = new FilmsFilterView(filters, this._currentFilter);
@@ -52,6 +54,7 @@ export default class FilterMenu {
   }
 
   _handleStats() {
+    this._filmPresenter.destroy()
     this._statisticPresenter.init();
     this._siteMenuComponent.setClickFilters(this._handleFiltersClick)
 
@@ -59,7 +62,8 @@ export default class FilterMenu {
 
   _handleFiltersClick() {
     this._statisticPresenter.destroy();
-    this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
+    this._filmPresenter.init();
+    this._siteMenuComponent.setClickStatsHandler(this._handleStats);
   }
 
   _handleFilterTypeChange(filterType) {

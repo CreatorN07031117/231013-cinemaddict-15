@@ -24,6 +24,7 @@ export default class SiteMenu extends AbstractView {
 
     if(evt.target.getAttribute("data-filter") === "stats") {
       evt.preventDefault();
+      console.log(evt.target.getAttribute("data-filter"))
       this.getElement().removeEventListener('click', this._clickStatsHandler);
       this._callback.click(evt.target);
     }    
@@ -36,6 +37,7 @@ export default class SiteMenu extends AbstractView {
 
     if(!(evt.target.getAttribute("data-filter") === "stats")) {
       evt.preventDefault();
+      console.log(evt.target.getAttribute("data-filter"))
       this.getElement().removeEventListener('click', this._clickFiltersHandler);
       this._callback.click(evt.target);
     }   
