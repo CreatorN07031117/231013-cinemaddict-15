@@ -69,7 +69,11 @@ export default class Board {
 
   init() {
     this._renderUserRank();
-    this._renderFilmsBoard();
+    if(this._getFilms().length > 0) {
+     this._renderFilmsBoard();
+    } else {
+      render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
+    }
   }
 
   _handleViewAction(actionType, updateType, update) {
@@ -155,29 +159,32 @@ export default class Board {
   }
 
   //Показ попапа
-  _showPopup(film, filmDetails, comments) {
+  _showPopup(film) {
     if (this._popupComponent !== null) {
       this._hidePopup();
     }
 
-    this._film = film;
-    this._popupCommentsComponent = comments;
+    api.getComments(film.id).then((commentList) => {
+      this._film = film;
+      const filmDetails = new FilmDetailsPopupView(film);
+      this._popupCommentsComponent = new PopupCommentsView(commentList, film);
 
-    this._popupComponent = new PopupView(filmDetails, this._popupCommentsComponent);
-    render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
-    this._popupComponent.setClosePopupClickHandler(this._hidePopup);
-    bodyElement.classList.add('hide-overflow');
-    document.addEventListener('keydown', this._onEscKeyDown);
+      this._popupComponent = new PopupView(filmDetails, this._popupCommentsComponent);
+      render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
+      this._popupComponent.setClosePopupClickHandler(this._hidePopup);
+      bodyElement.classList.add('hide-overflow');
+      document.addEventListener('keydown', this._onEscKeyDown);
 
-    const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
-    render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
-    render(filmDetailsContainer, this._popupCommentsComponent.getElement(), RenderPosition.BEFOREEND);
+      const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
+      render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
+      render(filmDetailsContainer, this._popupCommentsComponent.getElement(), RenderPosition.BEFOREEND);
 
-    filmDetails.setWatchlistClickHandler(this._handleWhatchlistClick);
-    filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
-    filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
-    this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
-    this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
+      filmDetails.setWatchlistClickHandler(this._handleWhatchlistClick);
+      filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
+      filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
+      this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
+      this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
+    })
   }
 
   //Удаление комментария
@@ -211,12 +218,10 @@ export default class Board {
   //Рендеринг карточки фильма
   _renderFilmCard(filmsListElement, film, commentList, renderPosition) {
     this._filmCardComponent = new FilmCardView(film);
-    const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
-    const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
     this._filmCardComponent.setOpenCardClickHandler(() => {
       this._openedFilmId = film.id;
-      this._showPopup(film, filmDetailsPopupComponent, commentsPopupComponet);
+      this._showPopup(film);
     });
 
     render(filmsListElement, this._filmCardComponent, renderPosition);
@@ -425,18 +430,12 @@ export default class Board {
 
   //Рендеринг доски фильмов
   _renderFilmsBoard() {
-    if(this._getFilms().length > 0) {
-      this._renderSort();
 
+      this._renderSort();
       render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
       this._renderFilmList();
-
       //блоки topRated и mostCommented
       this._renderTopRated();
       this._renderMostCommented();
-    } else {
-      render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
-      remove(this._loadingComponent);
-    }
   }
 }

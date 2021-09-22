@@ -28,10 +28,12 @@ render(siteFooterElement, new FooterStaticticsView(filmsModel), RenderPosition.B
 
 api.getFilms()
   .then((films) => {
+    console.log(films)
     filmsModel.setFilms(UpdateType.INIT, films);
     })
-  .catch(() => {
+  /*.catch(() => {
+    console.log('no')
     filmsModel.setFilms(UpdateType.INIT, []);
-  });
+  });*/
 
 
