@@ -1,7 +1,5 @@
 import SmartView from './smart.js';
 import {convertDate} from '../utils/common.js';
-import dayjs from 'dayjs';
-import {nanoid} from 'nanoid';
 import he from 'he';
 
 const EMOTION_PICTURES = {

@@ -70,7 +70,7 @@ export default class Board {
   init() {
     this._renderUserRank();
     if(this._getFilms().length > 0) {
-     this._renderFilmsBoard();
+      this._renderFilmsBoard();
     } else {
       render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
     }
@@ -164,7 +164,7 @@ export default class Board {
       this._hidePopup();
     }
 
-    api.getComments(film.id).then((commentList) => {
+    this._api.getComments(film.id).then((commentList) => {
       this._film = film;
       const filmDetails = new FilmDetailsPopupView(film);
       this._popupCommentsComponent = new PopupCommentsView(commentList, film);
@@ -184,7 +184,7 @@ export default class Board {
       filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
       this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
       this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
-    })
+    });
   }
 
   //Удаление комментария
@@ -197,7 +197,7 @@ export default class Board {
       {}, this._film , {comments: commentsId},
     );
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-    this._handleFilmPropertyChange(updateFilm);
+    this._handleFilmPropertyChange(updatedFilm);
   }
 
   //Добавление комментария
@@ -430,12 +430,12 @@ export default class Board {
 
   //Рендеринг доски фильмов
   _renderFilmsBoard() {
+    this._renderSort();
+    render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
+    this._renderFilmList();
 
-      this._renderSort();
-      render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
-      this._renderFilmList();
-      //блоки topRated и mostCommented
-      this._renderTopRated();
-      this._renderMostCommented();
+    //блоки topRated и mostCommented
+    this._renderTopRated();
+    this._renderMostCommented();
   }
 }

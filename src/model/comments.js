@@ -45,7 +45,7 @@ export default class Comments extends AbstractObserver {
       {
       },
     );
-  
-  return adaptedComment
+
+    return adaptedComment;
   }
 }
