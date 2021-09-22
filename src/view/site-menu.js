@@ -1,54 +1,63 @@
 import AbstractView from './abstract.js';
 
-const countFilms = (films) => {
-  let whatchlistCounter = 0;
-  let favoriteCounter = 0;
-  let historyCounter = 0;
-
-  for (const film of films) {
-    const watchlist = film.watchlist;
-    const alreadyWatched = film.alreadyWatched;
-    const favorite = film.favorite;
-
-    if (watchlist) {
-      whatchlistCounter++;
-    }
-
-    if (alreadyWatched) {
-      historyCounter++;
-    }
-
-    if (favorite) {
-      favoriteCounter++;
-    }
-  }
-
-  return [whatchlistCounter, historyCounter, favoriteCounter];
-};
-
-
-const createSiteMenuTemplate = (films) => {
-  const filmsCounter = countFilms(films);
-
-  return `<nav class="main-navigation">
-    <div class="main-navigation__items">
-      <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-      <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${filmsCounter[0]}</span></a>
-      <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">${filmsCounter[1]}</span></a>
-      <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">${filmsCounter[2]}</span></a>
-    </div>
-    <a href="#stats" class="main-navigation__additional">Stats</a>
-  </nav>`;
-};
+const createSiteMenuTemplate = () =>  `<nav class="main-navigation">
+      <a href="#stats" class="main-navigation__additional" data-filter="stats">Stats</a>
+    </nav>
+  `;
 
 export default class SiteMenu extends AbstractView {
-  constructor(films) {
+  constructor() {
     super();
 
-    this._films = films;
+    this._clickStatsHandler = this._clickStatsHandler.bind(this);
+    this._clickFiltersHandler = this._clickFiltersHandler.bind(this);
   }
 
   getTemplate() {
-    return createSiteMenuTemplate(this._films);
+    return createSiteMenuTemplate();
   }
+
+  _clickStatsHandler(evt) {
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    if(evt.target.getAttribute('data-filter') === 'stats') {
+      evt.preventDefault();
+
+      this.getElement().querySelector('.main-navigation__item').classList.remove('main-navigation__item--active');
+      evt.target.classList.add('main-navigation__item--active');
+      this.getElement().removeEventListener('click', this._clickStatsHandler);
+      this._callback.clickStats(evt.target);
+    }
+  }
+
+  _clickFiltersHandler(evt) {
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    if(evt.target.getAttribute('data-filter') !== 'stats') {
+      evt.preventDefault();
+      this.getElement().querySelector('.main-navigation__additional').classList.remove('main-navigation__item--active');
+      evt.target.classList.add('main-navigation__item--active');
+      this.getElement().removeEventListener('click', this._clickFiltersHandler);
+      this._callback.clickFilter(evt.target);
+    }
+  }
+
+  setClickStatsHandler(callback) {
+    this._callback.clickStats = callback;
+
+    this.getElement()
+      .addEventListener('click', this._clickStatsHandler);
+  }
+
+  setClickFilters(callback) {
+    this._callback.clickFilter = callback;
+
+    this.getElement()
+      .addEventListener('click', this._clickFiltersHandler);
+  }
+
 }

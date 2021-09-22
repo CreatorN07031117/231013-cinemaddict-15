@@ -152,7 +152,7 @@ const makeActorsList = new Array(MAX_IN_LIST).fill().map(() => generateName());
 const generateRuntime = () => {
   const randomMinutes = getRandomInteger(0, 59);
 
-  return `1 h ${randomMinutes}m`;
+  return 60 + randomMinutes;
 };
 
 //Генерация Country
@@ -180,6 +180,13 @@ const genarateRating = () => {
 //Генерация Release Date
 const generateReleaseDate = () => {
   const maxDaysGap = 5000;
+  const daysGap = getRandomInteger(-maxDaysGap, 0);
+
+  return dayjs().add(daysGap, 'day').toDate();
+};
+
+const generateWatchedDate = () => {
+  const maxDaysGap = 7;
   const daysGap = getRandomInteger(-maxDaysGap, 0);
 
   return dayjs().add(daysGap, 'day').toDate();
@@ -224,5 +231,6 @@ export const generateFilm = (allComments) => {
     ageRating: generateAgeRating(),
     watchlist: generateUserDetail(),
     alreadyWatched: generateUserDetail(),
+    watchingDate: generateWatchedDate(),
     favorite: generateUserDetail()};
 };
