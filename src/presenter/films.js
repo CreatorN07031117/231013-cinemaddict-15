@@ -178,7 +178,7 @@ export default class Board {
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
     //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
     //this._commentsList.splice(indexNumber, 1)
-
+    this._handleFilmPropertyChange(updateFilm);
   }
 
   //Добавление комментария
