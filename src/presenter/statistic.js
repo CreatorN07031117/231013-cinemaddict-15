@@ -1,9 +1,10 @@
 import StatisticView from '../view/statistic.js';
 import {getDurationHours, getDurationMinutes} from '../utils/format-time.js';
-import {render, RenderPosition} from '../utils/render.js'
+import {render, RenderPosition, remove} from '../utils/render.js'
 import {StatsType} from '../utils/const.js';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import {pickUserRank} from '../utils/user-rank.js'
 
 dayjs.extend(isBetween);
 
@@ -54,7 +55,7 @@ export default class StatisticPresenter {
     }
 
     const watchedFilmsCount = filmsWatched.length;
-    const userRank = 'userRank';
+    const userRank = pickUserRank(films);
 
     const totalDuration = filmsWatched.map((film) => film.runtime).reduce((count, film) => count + film);
 
@@ -101,20 +102,18 @@ export default class StatisticPresenter {
     );
   }
 
-  hide() {
-    this._statisticComponent.getElement().classList.add(`visually-hidden`);
+  destroy() {
+    remove(this._statisticComponent);
   }
 
   init() {
     const data = this._getFilmsDataByFilter(this._filmsModel.getFilms(), this._currentFilter);
 
     this._statisticComponent = new StatisticView(data);
-    //this._statisticComponent.setFilterItemsChangeHandler(this._handleFiltersChange);
+    console.log(this._statisticComponent)
+    this._statisticComponent.setFilterItemsChangeHandler(this._handleFiltersChange);
     render(this._container, this._statisticComponent, RenderPosition.BEFOREEND);
-    this.hide();
   }
 
-  show() {
-    this._statisticComponent.getElement().classList.remove(`visually-hidden`);
-  }
+
 }

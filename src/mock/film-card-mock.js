@@ -186,7 +186,7 @@ const generateReleaseDate = () => {
 };
 
 const generateWatchedDate = () => {
-  const maxDaysGap = 800;
+  const maxDaysGap = 7;
   const daysGap = getRandomInteger(-maxDaysGap, 0);
 
   return dayjs().add(daysGap, 'day').toDate();

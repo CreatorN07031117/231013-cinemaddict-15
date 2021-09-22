@@ -11,7 +11,7 @@ const createFilterItemTemplate = (filter, currentFilter) => {
     : ``;
 
   return `
-    <input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter" id="statistic-${type}" value="${type}" ${checkedFilter}>
+    <input type="radio" class="statistic__filters-input" name="statistic-filter" id="statistic-${type}" value="${type}" ${checkedFilter}>
       <label for="statistic-${type}" class="statistic__filters-label">${name}</label>
   `;
 };
@@ -74,7 +74,7 @@ export default class Statistic extends SmartView {
   }
 
   _filterItemsChangeHandler(evt) {
-    this.callback.changeFilter(evt.target.value);
+    this._callback.changeFilter(evt.target.value);
   }
 
   _getFilters() {
@@ -188,15 +188,15 @@ export default class Statistic extends SmartView {
   }
 
   restoreHandlers() {
-    this.setFilterItemsChangeHandler(this.callback.changeFilter);
+    this.setFilterItemsChangeHandler(this._callback.changeFilter);
     this._setChart();
   }
 
- /* setFilterItemsChangeHandler(callback) {
-    this.callback.changeFilter = callback;
+  setFilterItemsChangeHandler(callback) {
+    this._callback.changeFilter = callback;
 
     this.getElement()
       .querySelector('.statistic__filters')
       .addEventListener('change', this._filterItemsChangeHandler);
-  }*/
+  }
 }

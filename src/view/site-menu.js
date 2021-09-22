@@ -9,28 +9,50 @@ export default class SiteMenu extends AbstractView {
   constructor() {
     super();
 
-    this._clickHandler = this._clickHandler.bind(this);
-  }
-
-  _clickHandler(evt) {
-    if (evt.target.tagName !== 'A') {
-      return;
-    }
-
-    if(evt.target.getAttribute("data-filter") === "stats") {
-      evt.preventDefault();
-      this._callback.click(evt.target);
-    }    
+    this._clickStatsHandler = this._clickStatsHandler.bind(this);
+    this._clickFiltersHandler = this._clickFiltersHandler.bind(this);
   }
 
   getTemplate() {
     return createSiteMenuTemplate();
   }
 
-  setClickHandler(callback) {
+  _clickStatsHandler(evt) {
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    if(evt.target.getAttribute("data-filter") === "stats") {
+      evt.preventDefault();
+      this.getElement().removeEventListener('click', this._clickStatsHandler);
+      this._callback.click(evt.target);
+    }    
+  }
+
+  _clickFiltersHandler(evt) {
+    if (evt.target.tagName !== 'A') {
+      return;
+    }
+
+    if(!(evt.target.getAttribute("data-filter") === "stats")) {
+      evt.preventDefault();
+      this.getElement().removeEventListener('click', this._clickFiltersHandler);
+      this._callback.click(evt.target);
+    }   
+  }
+
+  setClickStatsHandler(callback) {
     this._callback.click = callback;
 
     this.getElement()
-      .addEventListener('click', this._clickHandler);
+      .addEventListener('click', this._clickStatsHandler);
   }
+
+  setClickFilters(callback) {
+    this._callback.click = callback;
+
+    this.getElement()
+      .addEventListener('click', this._clickFiltersHandler);
+  }
+
 }

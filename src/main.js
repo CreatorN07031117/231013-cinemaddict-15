@@ -31,6 +31,6 @@ const filmsPresenter = new FilmsPresenter(siteHeaderElement, siteMainElement, si
 const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel, filmsModel);
 
 filterMenuPresenter.init();
-filmsPresenter.init();
+//filmsPresenter.init();
 
 render(siteFooterElement, new FooterStaticticsView(films), RenderPosition.BEFOREEND);
