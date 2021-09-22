@@ -1,4 +1,4 @@
-import {SortType, UpdateType, FilterType} from '../utils/const.js';
+import {UpdateType, FilterType} from '../utils/const.js';
 import {render, RenderPosition, remove, replace} from '../utils/render.js';
 import {filter} from '../utils/filters.js';
 import SiteMenuView from '../view/site-menu.js';
@@ -54,15 +54,15 @@ export default class FilterMenu {
   }
 
   _handleStats() {
-    this._filmPresenter.destroy()
+    this._filmPresenter.destroy();
     this._statisticPresenter.init();
-    this._siteMenuComponent.setClickFilters(this._handleFiltersClick)
+    this._siteMenuComponent.setClickFilters(this._handleFiltersClick);
 
   }
 
   _handleFiltersClick() {
     this._statisticPresenter.destroy();
-    this._filmPresenter.init();
+    this._filmPresenter._renderFilmsBoard();
     this._siteMenuComponent.setClickStatsHandler(this._handleStats);
   }
 

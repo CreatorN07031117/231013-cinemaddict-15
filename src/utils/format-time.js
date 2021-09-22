@@ -1,4 +1,3 @@
-import {addLeadZero} from './common.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import RelativeTime from 'dayjs/plugin/RelativeTime';
@@ -15,4 +14,4 @@ export const getDurationMinutes = (runtime) => {
   const minutes = runtime - hours*60;
 
   return minutes;
-}
+};

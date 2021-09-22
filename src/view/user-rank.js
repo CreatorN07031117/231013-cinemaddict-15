@@ -1,5 +1,5 @@
 import AbstractView from './abstract.js';
-import {pickUserRank} from '../utils/user-rank.js'
+import {pickUserRank} from '../utils/user-rank.js';
 
 const createUserRankTemplate = (films) => (
   `<section class="header__profile profile">
@@ -11,7 +11,6 @@ const createUserRankTemplate = (films) => (
 export default class UserRank extends AbstractView {
   constructor(films) {
     super();
-    console.log(pickUserRank(films))
     this._films = films;
   }
 

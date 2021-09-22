@@ -30,9 +30,9 @@ export const MaxFilmsUserRank = {
 };
 
 export const StatsType = {
-  ALL: `all-time`,
-  TODAY: `today`,
-  WEEK: `week`,
-  MONTH: `month`,
-  YEAR: `year`
+  ALL: 'all-time',
+  TODAY: 'today',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
 };

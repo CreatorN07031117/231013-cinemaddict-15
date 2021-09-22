@@ -1,10 +1,10 @@
 import StatisticView from '../view/statistic.js';
 import {getDurationHours, getDurationMinutes} from '../utils/format-time.js';
-import {render, RenderPosition, remove} from '../utils/render.js'
+import {render, RenderPosition, remove} from '../utils/render.js';
 import {StatsType} from '../utils/const.js';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
-import {pickUserRank} from '../utils/user-rank.js'
+import {pickUserRank} from '../utils/user-rank.js';
 
 dayjs.extend(isBetween);
 
@@ -22,9 +22,9 @@ export default class StatisticPresenter {
 
   _getFilmsDataByFilter(films, currentFilter) {
     const currentDate = new Date();
-    const weekAgoDate = dayjs().subtract(7, `day`).toDate();
-    const monthAgoDate = dayjs().subtract(1, `month`).toDate();
-    const yearAgoDate = dayjs().subtract(1, `year`).toDate();
+    const weekAgoDate = dayjs().subtract(7, 'day').toDate();
+    const monthAgoDate = dayjs().subtract(1, 'month').toDate();
+    const yearAgoDate = dayjs().subtract(1, 'year').toDate();
     let filmsWatched = [];
 
     switch (currentFilter) {
@@ -35,7 +35,7 @@ export default class StatisticPresenter {
 
       case StatsType.TODAY:
         filmsWatched = films
-          .filter((film) => film.alreadyWatched && dayjs(film.watchingDate).isSame(currentDate, `day`));
+          .filter((film) => film.alreadyWatched && dayjs(film.watchingDate).isSame(currentDate, 'day'));
         break;
 
       case StatsType.WEEK:
@@ -81,7 +81,7 @@ export default class StatisticPresenter {
     });
 
     genresList = new Map([...genresList.entries()].sort((genreA, genreB) => genreB[1] - genreA[1]));
-    const topGenre = genresList.size > 0 ? genresList.keys().next().value : ``;
+    const topGenre = genresList.size > 0 ? genresList.keys().next().value : '';
 
     return {
       watchedFilmsCount,
@@ -90,7 +90,7 @@ export default class StatisticPresenter {
       totalDurationMinutes,
       genresList,
       topGenre,
-      currentFilter
+      currentFilter,
     };
   }
 
@@ -98,7 +98,7 @@ export default class StatisticPresenter {
     this._currentFilter = value;
 
     this._statisticComponent.updateData(
-        this._getFilmsDataByFilter(this._filmsModel.getFilms(), this._currentFilter)
+      this._getFilmsDataByFilter(this._filmsModel.getFilms(), this._currentFilter),
     );
   }
 
@@ -110,10 +110,8 @@ export default class StatisticPresenter {
     const data = this._getFilmsDataByFilter(this._filmsModel.getFilms(), this._currentFilter);
 
     this._statisticComponent = new StatisticView(data);
-    console.log(this._statisticComponent)
+
     this._statisticComponent.setFilterItemsChangeHandler(this._handleFiltersChange);
     render(this._container, this._statisticComponent, RenderPosition.BEFOREEND);
   }
-
-
 }

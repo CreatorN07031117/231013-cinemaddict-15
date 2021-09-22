@@ -64,7 +64,7 @@ export default class Board {
   }
 
   init() {
-    this._renderUserRank()
+    this._renderUserRank();
 
     if(this._getFilms().length > 0) {
       this._renderFilmsBoard();

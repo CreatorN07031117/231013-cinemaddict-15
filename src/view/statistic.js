@@ -7,8 +7,7 @@ const createFilterItemTemplate = (filter, currentFilter) => {
   const {type, name} = filter;
 
   const checkedFilter = type === currentFilter
-    ? `checked`
-    : ``;
+    ? 'checked' : '';
 
   return `
     <input type="radio" class="statistic__filters-input" name="statistic-filter" id="statistic-${type}" value="${type}" ${checkedFilter}>
@@ -23,12 +22,12 @@ const createStatisticTemplate = (data, filters) => {
     totalDurationHours,
     totalDurationMinutes,
     topGenre,
-    currentFilter
+    currentFilter,
   } = data;
 
   const filterItemsTemplate = filters
     .map((filter) => createFilterItemTemplate(filter, currentFilter))
-    .join(``);
+    .join('');
 
   return `<section class="statistic">
       <p class="statistic__rank">
@@ -81,83 +80,83 @@ export default class Statistic extends SmartView {
     return [
       {
         type: StatsType.ALL,
-        name: `All time`
+        name: 'All time',
       },
       {
         type: StatsType.TODAY,
-        name: `Today`
+        name: 'Today',
       },
       {
         type: StatsType.WEEK,
-        name: `Week`
+        name: 'Week',
       },
       {
         type: StatsType.MONTH,
-        name: `Month`
+        name: 'Month',
       },
       {
         type: StatsType.YEAR,
-        name: `Year`
-      }
+        name: 'Year',
+      },
     ];
   }
 
   _renderChart(statisticCtx, genresList) {
     return new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
-      type: `horizontalBar`,
+      type: 'horizontalBar',
       data: {
         labels: [...genresList.keys()],
         datasets: [{
           data: [...genresList.values()],
-          backgroundColor: `#ffe800`,
-          hoverBackgroundColor: `#ffe800`,
-          anchor: `start`,
-        }]
+          backgroundColor: '#ffe800',
+          hoverBackgroundColor: '#ffe800',
+          anchor: 'start',
+        }],
       },
       options: {
         plugins: {
           datalabels: {
             font: {
-              size: 20
+              size: 20,
             },
-            color: `#ffffff`,
-            anchor: `start`,
-            align: `start`,
+            color: '#ffffff',
+            anchor: 'start',
+            align: 'start',
             offset: 40,
-          }
+          },
         },
         scales: {
           yAxes: [{
             ticks: {
-              fontColor: `#ffffff`,
+              fontColor: '#ffffff',
               padding: 100,
-              fontSize: 20
+              fontSize: 20,
             },
             gridLines: {
               display: false,
-              drawBorder: false
+              drawBorder: false,
             },
-            barThickness: 24
+            barThickness: 24,
           }],
           xAxes: [{
             ticks: {
               display: false,
-              beginAtZero: true
+              beginAtZero: true,
             },
             gridLines: {
               display: false,
-              drawBorder: false
+              drawBorder: false,
             },
           }],
         },
         legend: {
-          display: false
+          display: false,
         },
         tooltips: {
-          enabled: false
-        }
-      }
+          enabled: false,
+        },
+      },
     });
   }
 
