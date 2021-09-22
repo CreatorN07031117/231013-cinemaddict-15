@@ -30,8 +30,7 @@ const createStatisticTemplate = (data, filters) => {
     .map((filter) => createFilterItemTemplate(filter, currentFilter))
     .join(``);
 
-  return `
-    <section class="statistic">
+  return `<section class="statistic">
       <p class="statistic__rank">
         Your rank
         <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
@@ -58,8 +57,7 @@ const createStatisticTemplate = (data, filters) => {
       <div class="statistic__chart-wrap">
         <canvas class="statistic__chart" width="1000"></canvas>
       </div>
-    </section>
-  `;
+    </section>`;
 };
 
 export default class Statistic extends SmartView {
@@ -76,7 +74,7 @@ export default class Statistic extends SmartView {
   }
 
   _filterItemsChangeHandler(evt) {
-    this._handler.changeFilter(evt.target.value);
+    this.callback.changeFilter(evt.target.value);
   }
 
   _getFilters() {
@@ -169,7 +167,7 @@ export default class Statistic extends SmartView {
     }
 
     const BAR_HEIGHT = 50;
-    const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
+    const statisticCtx = this.getElement().querySelector('.statistic__chart');
     const {genresList} = this._data;
 
     statisticCtx.height = BAR_HEIGHT * genresList.size;
@@ -190,15 +188,15 @@ export default class Statistic extends SmartView {
   }
 
   restoreHandlers() {
-    this.setFilterItemsChangeHandler(this._handler.changeFilter);
+    this.setFilterItemsChangeHandler(this.callback.changeFilter);
     this._setChart();
   }
 
-  setFilterItemsChangeHandler(handler) {
-    this._handler.changeFilter = handler;
+ /* setFilterItemsChangeHandler(callback) {
+    this.callback.changeFilter = callback;
 
     this.getElement()
-      .querySelector(`.statistic__filters`)
-      .addEventListener(`change`, this._filterItemsChangeHandler);
-  }
+      .querySelector('.statistic__filters')
+      .addEventListener('change', this._filterItemsChangeHandler);
+  }*/
 }

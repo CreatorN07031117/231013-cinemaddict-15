@@ -17,16 +17,18 @@ export default class SiteMenu extends AbstractView {
       return;
     }
 
-    evt.preventDefault();
-    this._handler.click(evt.target);
+    if(evt.target.getAttribute("data-filter") === "stats") {
+      evt.preventDefault();
+      this._callback.click(evt.target);
+    }    
   }
 
   getTemplate() {
     return createSiteMenuTemplate();
   }
 
-  setClickHandler(handler) {
-    this._handler.click = handler;
+  setClickHandler(callback) {
+    this._callback.click = callback;
 
     this.getElement()
       .addEventListener('click', this._clickHandler);

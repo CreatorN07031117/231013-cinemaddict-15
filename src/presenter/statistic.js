@@ -1,7 +1,7 @@
 import StatisticView from '../view/statistic.js';
-import {FormatTime} from '../utils/format-time.js';
-import {render} from '../utils/render.js'
-import {StatsType, getDurationHours, getDurationMinutes} from '../utils/const.js';
+import {getDurationHours, getDurationMinutes} from '../utils/format-time.js';
+import {render, RenderPosition} from '../utils/render.js'
+import {StatsType} from '../utils/const.js';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
@@ -56,8 +56,8 @@ export default class StatisticPresenter {
     const watchedFilmsCount = filmsWatched.length;
     const userRank = 'userRank';
 
-    const totalDuration = filmsWatched.reduce((count, film) => count + film.runtime);
-    console.log(totalDuration)
+    const totalDuration = filmsWatched.map((film) => film.runtime).reduce((count, film) => count + film);
+
     const totalDurationHours = getDurationHours(totalDuration);
     const totalDurationMinutes = getDurationMinutes(totalDuration);
 
@@ -109,7 +109,7 @@ export default class StatisticPresenter {
     const data = this._getFilmsDataByFilter(this._filmsModel.getFilms(), this._currentFilter);
 
     this._statisticComponent = new StatisticView(data);
-    this._statisticComponent.setFilterItemsChangeHandler(this._handleFiltersChange);
+    //this._statisticComponent.setFilterItemsChangeHandler(this._handleFiltersChange);
     render(this._container, this._statisticComponent, RenderPosition.BEFOREEND);
     this.hide();
   }

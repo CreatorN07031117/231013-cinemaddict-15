@@ -3,6 +3,7 @@ import {render, RenderPosition, remove, replace} from '../utils/render.js';
 import {filter} from '../utils/filters.js';
 import SiteMenuView from '../view/site-menu.js';
 import FilmsFilterView from '../view/site-filters.js';
+import StatisticPresenter from './statistic.js';
 
 export default class FilterMenu {
   constructor(mainBlock, filterModel, filmsModel) {
@@ -20,6 +21,8 @@ export default class FilterMenu {
 
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
+
+    this._statisticPresenter = new StatisticPresenter(this._mainBlock, this._filmsModel);
   }
 
   init() {
@@ -28,7 +31,8 @@ export default class FilterMenu {
     const filters = this._getFilters();
     const prevFilterComponent = this._filterComponent;
 
-    render(this._mainBlock, this._siteMenuComponent, RenderPosition.BEFOREEND);
+    render(this._mainBlock, this._siteMenuComponent, RenderPosition.AFTERBEGIN);
+    this._siteMenuComponent.setClickHandler(this._handleStats)
     this._filterContainer = this._siteMenuComponent.getElement();
 
     this._filterComponent = new FilmsFilterView(filters, this._currentFilter);
@@ -44,6 +48,10 @@ export default class FilterMenu {
 
   _handleModelEvent() {
     this.init();
+  }
+
+  _handleStats() {
+    this._statisticPresenter.init()
   }
 
   _handleFilterTypeChange(filterType) {
