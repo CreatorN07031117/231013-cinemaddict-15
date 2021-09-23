@@ -14,6 +14,7 @@ export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 export const FilterType = {
@@ -36,3 +37,6 @@ export const StatsType = {
   MONTH: 'month',
   YEAR: 'year',
 };
+
+export const AUTHORIZATION = 'Basic 8zr927wefbkp';
+export const END_POINT = 'https://15.ecmascript.pages.academy/cinemaddict';

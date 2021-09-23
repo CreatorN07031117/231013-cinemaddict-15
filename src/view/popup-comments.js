@@ -1,7 +1,5 @@
 import SmartView from './smart.js';
 import {convertDate} from '../utils/common.js';
-import dayjs from 'dayjs';
-import {nanoid} from 'nanoid';
 import he from 'he';
 
 const EMOTION_PICTURES = {
@@ -96,10 +94,7 @@ export default class PopupComments extends SmartView {
       evt.preventDefault();
 
       const userComment = {
-        id: nanoid(),
-        author: 'Movie Buff',
         comment: this.getElement().querySelector('.film-details__comment-input').value,
-        date: dayjs(),
         emotion: this._data.emotion,
       };
 

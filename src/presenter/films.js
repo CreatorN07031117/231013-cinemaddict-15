@@ -10,6 +10,7 @@ import FilmDetailsPopupView from '../view/film-details-popup.js';
 import PopupCommentsView from '../view/popup-comments.js';
 import PopupView from '../view/popup.js';
 import EmptyListMessageView from '../view/list-empty.js';
+import LoadingView from '../view/loading.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {SortType, UserAction, UpdateType} from '../utils/const.js';
 import dayjs from 'dayjs';
@@ -20,22 +21,25 @@ const ITEMS_IN_EXTRA_LIST = 2;
 const bodyElement = document.querySelector('body');
 
 export default class Board {
-  constructor(headerBlock, mainBlock, footerBlock, filmsModel, commentsModel, filterModel) {
+  constructor(headerBlock, mainBlock, footerBlock, filmsModel, commentsModel, filterModel, api) {
     this._headerBlock = headerBlock;
     this._mainBlock = mainBlock;
     this._footerBlock = footerBlock;
     this._filmsModel = filmsModel;
     this._commentsModel = commentsModel;
     this._filterModel = filterModel;
+    this._api = api;
     this._renderedFilmsCount = FILM_COUNT_PER_STEP;
     this._currentSortType = SortType.DEFAULT;
+    this._isLoading = true;
 
     this._siteSortComponent = null;
     this._sectionFilmsComponent = new FilmListView();
     this._topRatedComponent = new TopRatedBlockView();
     this._mostCommentedComponent = new MostCommentedBlockView();
-    this._emptyListMessage = new EmptyListMessageView();
+    this._emptyListMessageComponent = null;
     this._showMoreBtnComponent = new ShowMoretBtnView();
+    this._loadingComponent = new LoadingView();
 
     this._popupComponent = null;
     this._filmDetailsPopupComponent = null;
@@ -65,11 +69,11 @@ export default class Board {
 
   init() {
     this._renderUserRank();
-
     if(this._getFilms().length > 0) {
       this._renderFilmsBoard();
     } else {
-      render(this._mainBlock, this._emptyListMessage, RenderPosition.BEFOREEND);
+      this._emptyListMessageComponent = new EmptyListMessageView();
+      render(this._mainBlock, this._emptyListMessageComponent, RenderPosition.BEFOREEND);
     }
   }
 
@@ -77,13 +81,19 @@ export default class Board {
 
     switch (actionType) {
       case UserAction.UPDATE_FILMCARD:
-        this._filmsModel.updateFilm(updateType, update);
+        this._api.updateFilm(update).then((response) => {
+          this._filmsModel.updateFilm(updateType, response);
+        });
         break;
       case UserAction.ADD_COMMENT:
-        this._commentsModel.addComment(updateType, update);
+        this._api.addComment(update).then((response) => {
+          this._commentsModel.addComment(updateType, response);
+        });
         break;
       case UserAction.DELETE_COMMENT:
-        this._commentsModel.deleteComments(updateType, update);
+        this._api.deleteComment(update).then(() => {
+          this._commentsModel.deleteComments(updateType, update);
+        });
         break;
     }
   }
@@ -99,6 +109,11 @@ export default class Board {
       case UpdateType.MAJOR:
         this._clearFilmList({resetRenderedTaskCount: true, resetSortType: true});
         this._renderFilmList();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderFilmsBoard();
         break;
     }
   }
@@ -122,7 +137,11 @@ export default class Board {
     return this._commentsModel.getComments();
   }
 
-  //Сокрытие попапа
+  _renderLoading() {
+    render(this._mainBlock, this._loadingComponent, RenderPosition.AFTERBEGIN);
+  }
+
+
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this._onEscKeyDown);
@@ -140,33 +159,37 @@ export default class Board {
     }
   }
 
-  //Показ попапа
-  _showPopup(film, filmDetails, comments) {
+
+  _showPopup(film) {
     if (this._popupComponent !== null) {
       this._hidePopup();
     }
 
-    this._film = film;
-    this._popupCommentsComponent = comments;
+    this._api.getComments(film.id)
+      .then((commentList) => {
+        this._film = film;
+        const filmDetails = new FilmDetailsPopupView(film);
+        this._popupCommentsComponent = new PopupCommentsView(commentList, film);
 
-    this._popupComponent = new PopupView(filmDetails, this._popupCommentsComponent);
-    render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
-    this._popupComponent.setClosePopupClickHandler(this._hidePopup);
-    bodyElement.classList.add('hide-overflow');
-    document.addEventListener('keydown', this._onEscKeyDown);
+        this._popupComponent = new PopupView(filmDetails, this._popupCommentsComponent);
+        render(this._footerBlock,  this._popupComponent, RenderPosition.AFTEREND);
+        this._popupComponent.setClosePopupClickHandler(this._hidePopup);
+        bodyElement.classList.add('hide-overflow');
+        document.addEventListener('keydown', this._onEscKeyDown);
 
-    const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
-    render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
-    render(filmDetailsContainer, this._popupCommentsComponent.getElement(), RenderPosition.BEFOREEND);
+        const filmDetailsContainer = this._popupComponent.getElement().querySelector('.film-details__top-container');
+        render(filmDetailsContainer, filmDetails.getElement(), RenderPosition.BEFOREEND);
+        render(filmDetailsContainer, this._popupCommentsComponent.getElement(), RenderPosition.BEFOREEND);
 
-    filmDetails.setWatchlistClickHandler(this._handleWhatchlistClick);
-    filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
-    filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
-    this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
-    this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
+        filmDetails.setWatchlistClickHandler(this._handleWhatchlistClick);
+        filmDetails.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
+        filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
+        this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
+        this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
+      });
   }
 
-  //Удаление комментария
+
   _handleCommentDeleteClick(update) {
 
     const updateComments = update.comments;
@@ -176,12 +199,10 @@ export default class Board {
       {}, this._film , {comments: commentsId},
     );
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-    //const indexNumber = this._commentsList.findIndex((comment) => comment.id === commentsId);
-    //this._commentsList.splice(indexNumber, 1)
-    this._handleFilmPropertyChange(updateFilm);
+    this._handleFilmPropertyChange(updatedFilm);
   }
 
-  //Добавление комментария
+
   _handleCommentSubmit(update) {
     const updatedComments = update.comments;
     const commentsId = updatedComments.map((comment) => comment.id);
@@ -196,15 +217,13 @@ export default class Board {
     this._popupCommentsComponent.reset(this._getComments(), updatedFilm);
   }
 
-  //Рендеринг карточки фильма
+
   _renderFilmCard(filmsListElement, film, commentList, renderPosition) {
     this._filmCardComponent = new FilmCardView(film);
-    const filmDetailsPopupComponent = new FilmDetailsPopupView(film);
-    const commentsPopupComponet = new PopupCommentsView(commentList, film);
 
     this._filmCardComponent.setOpenCardClickHandler(() => {
       this._openedFilmId = film.id;
-      this._showPopup(film, filmDetailsPopupComponent, commentsPopupComponet);
+      this._showPopup(film);
     });
 
     render(filmsListElement, this._filmCardComponent, renderPosition);
@@ -228,10 +247,11 @@ export default class Board {
     this._clearFilmList();
     remove(this._topRatedComponent);
     remove(this._mostCommentedComponent);
+    remove(this._loadingComponent);
     remove(this._sectionFilmsComponent);
   }
 
-  //Клик по кнопке Add to whatchlist
+
   _handleWhatchlistClick(film) {
     const updatedFilm = Object.assign(
       {}, film , {watchlist: !film.watchlist},
@@ -240,7 +260,7 @@ export default class Board {
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
   }
 
-  //Клик по кнопке Mark as watched
+
   _handleAlreadyWatchedClick(film) {
     const updatedFilm = Object.assign(
       {}, film , {alreadyWatched: !film.alreadyWatched},
@@ -249,7 +269,7 @@ export default class Board {
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
   }
 
-  //Клик по кнопке Add to Favorite
+
   _handleFavoritesClick(film) {
     const updatedFilm = Object.assign(
       {}, film , {favorite: !film.favorite},
@@ -257,9 +277,8 @@ export default class Board {
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
   }
 
-  //Метод изменения свойства в фильме
+
   _handleFilmPropertyChange(updatedFilm) {
-    //this._films = updateItem(this._films, updatedFilm);
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
@@ -284,7 +303,7 @@ export default class Board {
     }
   }
 
-  //Список фильмов от-до
+
   _renderFilms(films) {
     this._filmListContainer = this._sectionFilmsComponent.getElement().querySelector('.films-list__container');
 
@@ -294,7 +313,7 @@ export default class Board {
     });
   }
 
-  //Создание списка фильмов
+
   _renderFilmList() {
     const filmsCount = this._getFilms().length;
     const films = this._getFilms().slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
@@ -306,7 +325,7 @@ export default class Board {
     }
   }
 
-  //Очистка списка фильмов
+
   _clearFilmList(resetRenderedFilmsCount = false, resetSortType = false) {
     this._filmsIdList.forEach((filmCard) => remove(filmCard));
     this._filmsIdList.clear();
@@ -324,7 +343,7 @@ export default class Board {
     }
   }
 
-  //Клик по кнопке show more
+
   _handleShowMoreBtnClick() {
     const filmsCount = this._getFilms().length;
 
@@ -339,14 +358,14 @@ export default class Board {
     }
   }
 
-  //Рендеринг кнопки show more
+
   _renderShowMoreButton() {
     render(this._sectionFilmsComponent.getElement().querySelector('.films-list'), this._showMoreBtnComponent, RenderPosition.BEFOREEND);
 
     this._showMoreBtnComponent.setClickHandler(this._handleShowMoreBtnClick);
   }
 
-  //Сортировка
+
   _renderSort() {
     if (this._siteSortComponent !== null) {
       this._siteSortComponent = null;
@@ -358,7 +377,7 @@ export default class Board {
     render(this._mainBlock, this._siteSortComponent, RenderPosition.BEFOREEND);
   }
 
-  //Клик по сортировке
+
   _handleSortTypeChange(sortType) {
     if (this._currentSortType === sortType) {
       return;
@@ -368,7 +387,7 @@ export default class Board {
     this._renderFilmList();
   }
 
-  //Блоки Toprated и MostCommented
+
   _renderTopRated() {
     const films = this._getFilms();
 
@@ -411,14 +430,18 @@ export default class Board {
     this._renderUserRank();
   }
 
-  //Рендеринг доски фильмов
-  _renderFilmsBoard() {
-    this._renderSort();
 
+  _renderFilmsBoard() {
+
+    if(this._emptyListMessage !== null) {
+      remove(this._emptyListMessageComponent);
+    }
+
+    this._renderSort();
     render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
     this._renderFilmList();
 
-    //блоки topRated и mostCommented
+
     this._renderTopRated();
     this._renderMostCommented();
   }
