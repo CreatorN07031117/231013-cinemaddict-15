@@ -186,7 +186,7 @@ export default class Board {
         filmDetails.setFavoritesClickHandler(this._handleFavoritesClick);
         this._popupCommentsComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
         this._popupCommentsComponent.setFormSubmitHandler(this._handleCommentSubmit);
-    });
+      });
   }
 
 
