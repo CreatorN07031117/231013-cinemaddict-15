@@ -18,13 +18,9 @@ const filmsModel = new FilmsModel();
 const commentsModel = new CommentsModel();
 const filterModel = new FilterModel();
 
-const filmsPresenter = new FilmsPresenter(siteHeaderElement, siteMainElement, siteFooterElement, filmsModel, commentsModel, filterModel);
+const filmsPresenter = new FilmsPresenter(siteHeaderElement, siteMainElement, siteFooterElement, filmsModel, commentsModel, filterModel, api);
 const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel, filmsModel, filmsPresenter);
 
-filterMenuPresenter.init();
-filmsPresenter.init();
-
-render(siteFooterElement, new FooterStaticticsView(filmsModel), RenderPosition.BEFOREEND);
 
 api.getFilms()
   .then((films) => {
@@ -35,3 +31,7 @@ api.getFilms()
   });
 
 
+filterMenuPresenter.init();
+filmsPresenter.init();
+
+render(siteFooterElement, new FooterStaticticsView(filmsModel), RenderPosition.BEFOREEND);
