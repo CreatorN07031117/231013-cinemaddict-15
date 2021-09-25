@@ -10,7 +10,6 @@ const createPopup = () => `<section class="film-details">
 </form>
 </section>`;
 
-
 export default class Popup extends AbstractView {
   constructor(filmDetails, comments) {
     super();
@@ -31,7 +30,9 @@ export default class Popup extends AbstractView {
   updateComments(comments) {
     const update = {
       comments: comments,
-    }
+      disabled: false,
+    };
+
     this._comments.updateData(update);
   }
 

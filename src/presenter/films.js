@@ -1,5 +1,5 @@
 import UserRankView from '../view/user-rank.js';
-import {filter} from '../utils/filters.js';
+import {Filter} from '../utils/filters.js';
 import SortBlockView from '../view/site-sort.js';
 import FilmListView from '../view/film-list.js';
 import FilmCardView from '../view/film-card.js';
@@ -12,12 +12,10 @@ import PopupView from '../view/popup.js';
 import EmptyListMessageView from '../view/list-empty.js';
 import LoadingView from '../view/loading.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
-import {SortType, UserAction, UpdateType, State} from '../utils/const.js';
+import {FILM_COUNT_PER_STEP, ITEMS_IN_EXTRA_LIST, SortType, UserAction, UpdateType, State} from '../utils/const.js';
 import dayjs from 'dayjs';
 
 
-const FILM_COUNT_PER_STEP = 5;
-const ITEMS_IN_EXTRA_LIST = 2;
 const bodyElement = document.querySelector('body');
 
 export default class Board {
@@ -76,7 +74,7 @@ export default class Board {
     switch (actionType) {
       case UserAction.UPDATE_FILMCARD:
         if (this._popupCommentsComponent) {
-          this._popupCommentsComponent.setViewState(State.ADDING);
+          this.setViewState(State.ADDING, '');
         }
         this._api.updateFilm(update)
           .then((response) => {
@@ -85,21 +83,21 @@ export default class Board {
           })
           .catch(() => {
             if (this._popupCommentsComponent) {
-              this._popupCommentsComponent.setViewState(State.ABORTING);
+              this.setViewState(State.ABORTING, '');
             }
           });
         break;
       case UserAction.ADD_COMMENT:
-        this._popupCommentsComponent.setViewState(State.ADDING);
+        this.setViewState(State.ADDING, '');
         this._api.addComment(update, this._film.id)
           .then((response) => {
             this._commentsModel.setComments(response.comments);
             this._filmsModel.updateFilm(updateType, response.movie);
           })
-          .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
+          .catch(() => this.setViewState(State.ABORTING, ''));
         break;
       case UserAction.DELETE_COMMENT:
-        this._popupCommentsComponent.setViewState(State.DELETING);
+        this.setViewState(State.DELETING, update.commentId);
         this._api.deleteComment(update)
           .then(() => {
             this._commentsModel.deleteComments(updateType, update);
@@ -112,7 +110,7 @@ export default class Board {
                   comments: this._commentsModel.getComments().map((item) => item.id),
                 }));
           })
-          .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
+          .catch(() => this.setViewState(State.ABORTING, ''));
         break;
     }
   }
@@ -139,7 +137,7 @@ export default class Board {
   _getFilms() {
     const filterType = this._filterModel.getFilter();
     const films = this._filmsModel.getFilms();
-    const filtredFilms = filter[filterType](films);
+    const filtredFilms = Filter[filterType](films);
 
     switch(this._currentSortType) {
       case SortType.DATE:
@@ -163,6 +161,36 @@ export default class Board {
     const filterType = this._filterModel.getFilter();
     this._emptyListMessageComponent = new EmptyListMessageView(filterType);
     render(this._filmListContainer, this._emptyListMessageComponent, RenderPosition.AFTERBEGIN);
+  }
+
+  setViewState(state, deletedCommentId) {
+    const resetFormState = () => {
+      this._popupCommentsComponent.updateData({
+        disabled: false,
+        deleting: false,
+      });
+    };
+
+    switch (state) {
+      case State.ADDING:
+        this._popupCommentsComponent.updateData({
+          newComment: '',
+          emotion: null,
+          disabled: true,
+        });
+        break;
+      case State.DELETING:
+        this._popupCommentsComponent.updateData(
+          {
+            disabled: true,
+            deleting: true,
+            deletedCommentId: deletedCommentId,
+          });
+        break;
+      case State.ABORTING:
+        this._popupCommentsComponent.shake(resetFormState);
+        break;
+    }
   }
 
   _hidePopup() {
@@ -228,10 +256,6 @@ export default class Board {
 
 
   _handleCommentSubmit(update) {
-    /*const updatedComments = update.comments;
-    const commentsId = updatedComments.map((comment) => comment.id);
-
-    const newComment = update.comments[commentsId.length-1];*/
     const newComment = update;
 
     this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
@@ -270,7 +294,7 @@ export default class Board {
 
     if(filterType === 'all') {
       this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-      return
+      return;
     }
 
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MAJOR, updatedFilm);
@@ -290,7 +314,7 @@ export default class Board {
 
     if(filterType === 'all') {
       this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-      return
+      return;
     }
 
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MAJOR, updatedFilm);
@@ -305,7 +329,7 @@ export default class Board {
 
     if(filterType === 'all') {
       this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-      return
+      return;
     }
 
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MAJOR, updatedFilm);
@@ -323,7 +347,7 @@ export default class Board {
       const comments = this._commentsModel.getComments();
       this._popupComponent.updateFilmDetails(updatedFilm);
       this._popupComponent.updateComments(comments);
-      this._popupCommentsComponent.reset(comments, updatedFilm)
+      //
     }
 
     if (this._topRatedFilmsId.has(filmId)) {
@@ -361,8 +385,8 @@ export default class Board {
     if(filmsCount === 0) {
       remove(this._siteSortComponent);
       this._renderEmptyListMessage();
-      return
-    } 
+      return;
+    }
 
     if(this._emptyListMessage !== null) {
       remove(this._emptyListMessageComponent);
@@ -375,7 +399,6 @@ export default class Board {
     if (this._getFilms().length > FILM_COUNT_PER_STEP) {
       this._renderShowMoreButton();
     }
-    
   }
 
 
@@ -497,8 +520,8 @@ export default class Board {
 
     if(filmsCount === 0) {
       this._renderEmptyListMessage();
-      return
-    } 
+      return;
+    }
 
     if(this._emptyListMessage !== null) {
       remove(this._emptyListMessageComponent);

@@ -46,3 +46,19 @@ export const State = {
   DELETING: 'DELETING',
   ABORTING: 'ABORTING',
 };
+
+export const FILM_COUNT_PER_STEP = 5;
+export const ITEMS_IN_EXTRA_LIST = 2;
+
+export const RequestMethod = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+};
+
+
+export const SuccessHTTPStatusRange = {
+  MIN: 200,
+  MAX: 299,
+};

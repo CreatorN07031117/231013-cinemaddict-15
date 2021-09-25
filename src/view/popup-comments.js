@@ -1,7 +1,6 @@
 import SmartView from './smart.js';
 import {convertDate} from '../utils/common.js';
 import he from 'he';
-import {State} from '../utils/const.js';
 
 const EMOTION_PICTURES = {
   'smile': './images/emoji/smile.png',
@@ -9,9 +8,12 @@ const EMOTION_PICTURES = {
   'puke': './images/emoji/puke.png',
   'angry': './images/emoji/angry.png'};
 
-
-const commentTemplate = (comment, isDisabled, isDeleting) => {
+const commentTemplate = (comment, deleting, disabled, deletedCommentId) => {
   const commentDate = convertDate(comment.date);
+
+  deleting = deleting && comment.id === deletedCommentId;
+  disabled = disabled && comment.id === deletedCommentId;
+  const buttonText = deleting ? 'Deleting...' : 'Delete';
 
   return `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
@@ -22,14 +24,13 @@ const commentTemplate = (comment, isDisabled, isDeleting) => {
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${comment.author}</span>
                 <span class="film-details__comment-day">${commentDate}</span>
-                <button id = "${comment.id}" class="film-details__comment-delete" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'deleting...' : 'delete'}</button>
+                <button id = "${comment.id}" class="film-details__comment-delete" ${disabled ? 'disabled' : ''}>${buttonText}</button>
               </p>
             </div>
           </li>`;
 };
 
-
-const createPopupComments = (data, commentsElement, isDisabled) => `<div class="film-details__bottom-container">
+const createPopupComments = (data, commentsElement) => `<div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
       <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
       <ul class="film-details__comments-list">
@@ -38,7 +39,7 @@ const createPopupComments = (data, commentsElement, isDisabled) => `<div class="
       <div class="film-details__new-comment">
       <div class="film-details__add-emoji-label">${data.emotion ? `<img src="images/emoji/${data.emotion}.png" width="55" height="55" alt="emoji-${data.emotion}">` : ''}</div>
       <label class="film-details__comment-label">
-        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}>${he.encode(data.newComment)}</textarea>
+        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${data.disabled ? 'disabled' : ''}>${he.encode(data.newComment)}</textarea>
       </label>
         <div class="film-details__emoji-list">
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
@@ -68,7 +69,7 @@ export default class PopupComments extends SmartView {
     super();
 
     this._data = PopupComments.parseFilmCommentsToData(commentsList, film);
-    this._comments = this._data.comments;
+    this._comments = null;
 
     this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
     this._commentEmotionChangeHandler = this._commentEmotionChangeHandler.bind(this);
@@ -80,8 +81,11 @@ export default class PopupComments extends SmartView {
   }
 
   getTemplate() {
-    this._commentsElement = this._comments.map((comment) => commentTemplate(comment)).join('');
-    console.log(this._commentsElement)
+    this._comments = this._data.comments;
+    const deletedCommentId = this._data.deletedCommentId;
+
+    this._commentsElement = this._comments.map((comment) => commentTemplate(comment, this._data.deleting, this._data.disabled, deletedCommentId)).join('');
+
     return createPopupComments(this._data, this._commentsElement);
   }
 
@@ -103,7 +107,7 @@ export default class PopupComments extends SmartView {
         comment: this.getElement().querySelector('.film-details__comment-input').value,
         emotion: this._data.emotion,
       };
-      
+
       this._callback.commentSubmit(userComment);
     }
   }
@@ -164,29 +168,6 @@ export default class PopupComments extends SmartView {
     );
   }
 
-  setViewState(state) {
-    const resetFormState = () => {
-      this.updateData({
-        isDisabled: false,
-        isDeleting: false,
-      });
-    };
-
-    switch (state) {
-      case State.ADDING:
-      case State.DELETING:
-        this.updateData(
-          {
-            isDisabled: true,
-            isDeleting: true,
-          });
-        break;
-
-      case State.ABORTING:
-        this.shake(resetFormState);
-        break;
-    }
-  }
 
   static parseFilmCommentsToData(commentsList, film) {
 
@@ -203,8 +184,9 @@ export default class PopupComments extends SmartView {
         newComment: '',
         emotion: null,
         scrollPosition: 0,
-        isDisabled: false,
-        isDeleting: false,
+        disabled: false,
+        deleting: false,
+        deletedCommentId: '',
       },
     );
   }
@@ -222,8 +204,10 @@ export default class PopupComments extends SmartView {
 
     delete data.newComment;
     delete data.emotion;
-    delete data.isDisabled;
-    delete data.isDeleting;
+    delete data.disabled;
+    delete data.deleting;
+    delete data.deletedCommentId;
+
     return data;
   }
 }

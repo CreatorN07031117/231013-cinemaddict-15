@@ -1,6 +1,6 @@
 import {UpdateType, FilterType} from '../utils/const.js';
 import {render, RenderPosition, remove, replace} from '../utils/render.js';
-import {filter} from '../utils/filters.js';
+import {Filter} from '../utils/filters.js';
 import SiteMenuView from '../view/site-menu.js';
 import FilmsFilterView from '../view/site-filters.js';
 import StatisticPresenter from './statistic.js';
@@ -62,6 +62,7 @@ export default class FilterMenu {
 
   _handleFiltersClick() {
     this._statisticPresenter.destroy();
+    this._filmPresenter.destroy();
     this._filmPresenter._renderFilmsBoard();
     this._siteMenuComponent.setClickStatsHandler(this._handleStats);
   }
@@ -81,22 +82,22 @@ export default class FilterMenu {
       {
         type: FilterType.ALL,
         name: 'All movies',
-        count: filter[FilterType.ALL](films).length,
+        count: Filter[FilterType.ALL](films).length,
       },
       {
         type: FilterType.WHATCHLIST,
         name: 'Whatchlist',
-        count: filter[FilterType.WHATCHLIST](films).length,
+        count: Filter[FilterType.WHATCHLIST](films).length,
       },
       {
         type: FilterType.HISTORY,
         name: 'History',
-        count: filter[FilterType.HISTORY](films).length,
+        count: Filter[FilterType.HISTORY](films).length,
       },
       {
         type: FilterType.FAVORITES,
         name: 'Favorites',
-        count: filter[FilterType.FAVORITES](films).length,
+        count: Filter[FilterType.FAVORITES](films).length,
       },
     ];
   }

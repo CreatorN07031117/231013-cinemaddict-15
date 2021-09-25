@@ -25,8 +25,8 @@ export default class SortBlock extends AbstractView {
       return;
     }
     evt.preventDefault();
-    this.getElement().querySelector('.sort__button--active').classList.remove('sort__button--active');
-    evt.target.classList.add('sort__button--active');
+    this.getElement().querySelector('.main-navigation__item').classList.remove('main-navigation__item--active');
+    evt.target.classList.add('main-navigation__item--active');
 
     this._callback.sortTypeChange(evt.target.dataset.sortType);
   }
