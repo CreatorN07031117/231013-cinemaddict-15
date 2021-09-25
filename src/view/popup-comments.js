@@ -10,7 +10,7 @@ const EMOTION_PICTURES = {
   'angry': './images/emoji/angry.png'};
 
 
-const commentTemplate = (comment) => {
+const commentTemplate = (comment, isDisabled, isDeleting) => {
   const commentDate = convertDate(comment.date);
 
   return `<li class="film-details__comment">
@@ -22,7 +22,7 @@ const commentTemplate = (comment) => {
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${comment.author}</span>
                 <span class="film-details__comment-day">${commentDate}</span>
-                <button id = "${comment.id}" class="film-details__comment-delete">Delete</button>
+                <button id = "${comment.id}" class="film-details__comment-delete" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'deleting...' : 'delete'}</button>
               </p>
             </div>
           </li>`;
@@ -213,6 +213,8 @@ export default class PopupComments extends SmartView {
         newComment: '',
         emotion: null,
         scrollPosition: 0,
+        isDisabled: false,
+        isDeleting: false,
       },
     );
   }
@@ -230,7 +232,8 @@ export default class PopupComments extends SmartView {
 
     delete data.newComment;
     delete data.emotion;
-
+    delete data.isDisabled;
+    delete data.isDeleting;
     return data;
   }
 }

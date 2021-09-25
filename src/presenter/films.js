@@ -159,7 +159,7 @@ export default class Board {
   }
 
   _renderEmptyListMessage() {
-    this._emptyListMessageComponent = new EmptyListMessageView();
+    this._emptyListMessageComponent = new EmptyListMessageView(this._filterType);
     render(this._mainBlock, this._emptyListMessageComponent, RenderPosition.BEFOREEND);
   }
 
