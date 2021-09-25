@@ -15,6 +15,11 @@ export default class Films extends AbstractObserver {
     return this._films;
   }
 
+  get filmsCount() {
+    return this._films.length;
+  }
+
+
   updateFilm(updateType, update) {
     const index = this._films.findIndex((film) => film.id === update.id);
 
@@ -68,23 +73,29 @@ export default class Films extends AbstractObserver {
       {},
       film,
       {
-        'film_info.title': film.title,
-        'film_info.alternative_title': film.alternativeTitle,
-        'film_info.total_rating': film.totalRating,
-        'film_info.poster': film.poster,
-        'film_info.director': film.director,
-        'film_info.writers': film.writers,
-        'film_info.actors': film.actors,
-        'film_info.release.date': film.realese,
-        'film_info.runtime': film.runtime,
-        'film_info.release.release_country': film.country,
-        'film_info.genre': film.genres,
-        'film_info.description': film.description,
-        'film_info.age_rating': film.ageRating,
-        'user_details.watchlist': film.watchlist,
-        'user_details.already_watched': film.alreadyWatched,
-        'user_details.watching_date': film.watchingDate,
-        'user_details.favorite': film.favorite,
+        film_info: {
+          'title': film.title,
+          'alternative_title': film.alternativeTitle,
+          'total_rating': film.totalRating,
+          'poster': film.poster,
+          'director': film.director,
+          'writers': film.writers,
+          'actors': film.actors,
+          'runtime': film.runtime,
+          'release': {
+                      'date': film.realese,
+                      'release_country': film.country,
+                     },
+          'genre': film.genres,
+          'description': film.description,
+          'age_rating': film.ageRating,
+        },
+        user_details: {
+          'watchlist': film.watchlist,
+          'already_watched': film.alreadyWatched,
+          'watching_date': film.watchingDate,
+          'favorite': film.favorite,
+        },
       },
     );
 
@@ -104,6 +115,7 @@ export default class Films extends AbstractObserver {
     delete adaptedFilm.watchlist;
     delete adaptedFilm.alreadyWatched;
     delete adaptedFilm.watchingDate;
+    delete adaptedFilm.favorite;
 
     return adaptedFilm;
   }

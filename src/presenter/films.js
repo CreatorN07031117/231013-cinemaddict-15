@@ -12,7 +12,7 @@ import PopupView from '../view/popup.js';
 import EmptyListMessageView from '../view/list-empty.js';
 import LoadingView from '../view/loading.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
-import {SortType, UserAction, UpdateType} from '../utils/const.js';
+import {SortType, UserAction, UpdateType, State} from '../utils/const.js';
 import dayjs from 'dayjs';
 
 
@@ -69,30 +69,43 @@ export default class Board {
 
   init() {
     this._renderUserRank();
-    if(this._getFilms().length > 0) {
-      this._renderFilmsBoard();
-    } else {
-      this._emptyListMessageComponent = new EmptyListMessageView();
-      render(this._mainBlock, this._emptyListMessageComponent, RenderPosition.BEFOREEND);
-    }
   }
 
   _handleViewAction(actionType, updateType, update) {
-
     switch (actionType) {
       case UserAction.UPDATE_FILMCARD:
-        this._api.updateFilm(update).then((response) => {
-          this._filmsModel.updateFilm(updateType, response);
-        });
+        if (this._popupCommentsComponent) {
+          this._popupCommentsComponent.setViewState(State.ADDING);
+        }
+        this._api.updateFilm(update)
+          .then((response) => this._filmsModel.updateFilm(updateType, response))
+          .catch(() => {
+            if (this._popupCommentsComponent) {
+              this._popupCommentsComponent.setViewState(State.ABORTING);
+            }
+          })
         break;
       case UserAction.ADD_COMMENT:
-        this._api.addComment(update).then((response) => {
-          this._commentsModel.addComment(updateType, response);
-        });
+        this._popupCommentsComponent.setViewState(State.ADDING);
+        this._api.addComment(update, this._film.id)
+          .then((response) => {
+            this._commentsModel.setComments(response.comments);
+            this._filmsModel.updateFilm(updateType, response.movie);
+          })
+          .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
         break;
       case UserAction.DELETE_COMMENT:
-        this._api.deleteComment(update).then(() => {
+        this._api.deleteComment(update)
+        .then(() => {
           this._commentsModel.deleteComments(updateType, update);
+          this._filmsModel.updateFilm(
+            updateType,
+            Object.assign(
+                {},
+                this._filmsModel.getFilm(update.id),
+                {
+                  comments: this._commentsModel.getComments().map((item) => item.id),
+                }))
         });
         break;
     }
@@ -100,9 +113,8 @@ export default class Board {
 
   _handleModelEvent(updateType, data) {
     switch (updateType) {
-      case UpdateType.PATCH:
-        break;
       case UpdateType.MINOR:
+        console.log(data);
         this._handleFilmPropertyChange(data);
         this._updateUserRank();
         break;
@@ -141,6 +153,10 @@ export default class Board {
     render(this._mainBlock, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
+  _renderEmptyListMessage() {
+    this._emptyListMessageComponent = new EmptyListMessageView();
+    render(this._mainBlock, this._emptyListMessageComponent, RenderPosition.BEFOREEND);
+  }
 
   _hidePopup() {
     bodyElement.classList.remove('hide-overflow');
@@ -167,6 +183,7 @@ export default class Board {
 
     this._api.getComments(film.id)
       .then((commentList) => {
+        this._commentsModel.setComments(commentList);
         this._film = film;
         const filmDetails = new FilmDetailsPopupView(film);
         this._popupCommentsComponent = new PopupCommentsView(commentList, film);
@@ -191,30 +208,24 @@ export default class Board {
 
 
   _handleCommentDeleteClick(update) {
-
-    const updateComments = update.comments;
-    const commentsId =  updateComments.map((comment) => comment.id);
-
-    const updatedFilm = Object.assign(
-      {}, this._film , {comments: commentsId},
-    );
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-    this._handleFilmPropertyChange(updatedFilm);
+    const commentId = update;
+    this._handleViewAction(
+      UserAction.DELETE_COMMENT,
+      UpdateType.MINOR,
+      {
+        id: this._film.id, 
+        commentId ,
+      })
   }
 
 
   _handleCommentSubmit(update) {
     const updatedComments = update.comments;
     const commentsId = updatedComments.map((comment) => comment.id);
-    const updatedFilm = Object.assign(
-      {}, this._film, {comments: commentsId},
-    );
 
     const newComment = update.comments[commentsId.length-1];
 
-    this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.PATCH, newComment);
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
-    this._popupCommentsComponent.reset(this._getComments(), updatedFilm);
+    this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
   }
 
 
@@ -242,16 +253,6 @@ export default class Board {
     });
   }
 
-  destroy() {
-    remove(this._siteSortComponent);
-    this._clearFilmList();
-    remove(this._topRatedComponent);
-    remove(this._mostCommentedComponent);
-    remove(this._loadingComponent);
-    remove(this._sectionFilmsComponent);
-  }
-
-
   _handleWhatchlistClick(film) {
     const updatedFilm = Object.assign(
       {}, film , {watchlist: !film.watchlist},
@@ -263,7 +264,12 @@ export default class Board {
 
   _handleAlreadyWatchedClick(film) {
     const updatedFilm = Object.assign(
-      {}, film , {alreadyWatched: !film.alreadyWatched},
+      {}, 
+      film , 
+      {
+        alreadyWatched: !film.alreadyWatched,
+        watchingDate: dayjs(),
+      },
     );
 
     this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
@@ -279,6 +285,7 @@ export default class Board {
 
 
   _handleFilmPropertyChange(updatedFilm) {
+    console.log(updatedFilm)
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
@@ -430,6 +437,14 @@ export default class Board {
     this._renderUserRank();
   }
 
+  destroy() {
+    remove(this._siteSortComponent);
+    this._clearFilmList();
+    remove(this._topRatedComponent);
+    remove(this._mostCommentedComponent);
+    remove(this._loadingComponent);
+    remove(this._sectionFilmsComponent);
+  }
 
   _renderFilmsBoard() {
 

@@ -94,6 +94,7 @@ export default class Api {
   }
 
   updateFilm(film) {
+    console.log(FilmsModel.adaptToServer(film));
     return this._load({
       url: `movies/${film.id}`,
       method: RequestMethod.PUT,

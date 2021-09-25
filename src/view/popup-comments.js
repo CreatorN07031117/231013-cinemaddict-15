@@ -1,6 +1,7 @@
 import SmartView from './smart.js';
 import {convertDate} from '../utils/common.js';
 import he from 'he';
+import {State} from '../utils/const.js';
 
 const EMOTION_PICTURES = {
   'smile': './images/emoji/smile.png',
@@ -120,20 +121,21 @@ export default class PopupComments extends SmartView {
 
     evt.preventDefault();
 
-    const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
+    /*const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
 
     this._comments = [
       ...this._comments.slice(0, indexComment),
       ...this._comments.slice(indexComment + 1),
     ];
 
-    const currentPosition = this.getElement().scrollTop;
+    
     this.getElement().scrollTop = this._data.currentPosition;
     this.updateData(
       { ...this._data, comments: this._comments},
-    );
-    this._callback.commentDeleteClick(PopupComments.parseDataToComments(this._data));
-
+    );*/
+    const deletedCommentId = evt.target.id;
+    this._callback.commentDeleteClick(deletedCommentId);
+    const currentPosition = this.getElement().scrollTop;
     this.getElement().scrollTo(0, currentPosition);
   }
 
@@ -174,6 +176,31 @@ export default class PopupComments extends SmartView {
     this.updateData(
       PopupComments.parseFilmCommentsToData(commentsList, film),
     );
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this.updateData({
+        isDisabled: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.ADDING:
+      case State.DELETING:
+        this.updateData(
+            {
+              isDisabled: true,
+              isDeleting: true
+            }
+        );
+        break;
+
+      case State.ABORTING:
+        this.shake(resetFormState);
+        break;
+    }
   }
 
   //Входящие данные

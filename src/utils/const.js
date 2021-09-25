@@ -40,3 +40,9 @@ export const StatsType = {
 
 export const AUTHORIZATION = 'Basic 8zr927wefbkp';
 export const END_POINT = 'https://15.ecmascript.pages.academy/cinemaddict';
+
+export const State = {
+  ADDING: `ADDING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};

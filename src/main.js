@@ -25,6 +25,7 @@ const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel
 api.getFilms()
   .then((films) => {
     filmsModel.setFilms(UpdateType.INIT, films);
+    render(siteFooterElement, new FooterStaticticsView(filmsModel.filmsCount), RenderPosition.BEFOREEND);
   })
   .catch(() => {
     filmsModel.setFilms(UpdateType.INIT, []);
@@ -34,4 +35,4 @@ api.getFilms()
 filterMenuPresenter.init();
 filmsPresenter.init();
 
-render(siteFooterElement, new FooterStaticticsView(filmsModel), RenderPosition.BEFOREEND);
+

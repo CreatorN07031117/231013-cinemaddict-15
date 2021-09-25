@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import RelativeTime from 'dayjs/plugin/RelativeTime';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 export const convertDate = (date) => {
-  dayjs.extend(RelativeTime);
+  dayjs.extend(relativeTime);
 
   let originalDate = dayjs(date).format('YYYY/M/D H:mm');
   const recentlyDate = dayjs().subtract(3, 'day');

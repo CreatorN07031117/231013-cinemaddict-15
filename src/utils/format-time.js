@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import RelativeTime from 'dayjs/plugin/RelativeTime';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(duration);
-dayjs.extend(RelativeTime);
+dayjs.extend(relativeTime);
 
 
 export const getDurationHours = (runtime) => Math.floor(runtime/60);

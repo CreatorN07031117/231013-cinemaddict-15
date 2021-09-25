@@ -24,7 +24,9 @@ export default class Comments extends AbstractObserver {
   }
 
   deleteComments(updateType, update) {
-    const index = this._comments.findIndex((comment) => comment.id === update.id);
+    console.log(this._comments)
+    console.log(update)
+    const index = this._comments.findIndex((comment) => comment.id === update.commentId);
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting comment');
