@@ -113,8 +113,6 @@ export default class Board {
                 }));
           })
           .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
-          console.log(this._filmsModel.getFilm(update.id))
-          console.log(this._filmsModel)
         break;
     }
   }
@@ -122,7 +120,7 @@ export default class Board {
   _handleModelEvent(updateType, update) {
     switch (updateType) {
       case UpdateType.MINOR:
-        this._handleFilmPropertyChange(update);
+        this._handleFilmPropertyChange(update.id);
         this._updateUserRank();
         break;
       case UpdateType.MAJOR:
@@ -314,30 +312,32 @@ export default class Board {
   }
 
 
-  _handleFilmPropertyChange(updatedFilm) {
-    console.log(updatedFilm)
-    const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
+  _handleFilmPropertyChange(filmId) {
+    const prevFilmCard = this._filmsIdList.get(filmId);
+    const updatedFilm = this._filmsModel.getFilm(filmId);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
-    this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
+    this._filmsIdList.set(filmId, this._filmCardComponent);
 
-    if (this._openedFilmId === updatedFilm.id) {
-      
+    if (this._openedFilmId === filmId) {
+      const comments = this._commentsModel.getComments();
       this._popupComponent.updateFilmDetails(updatedFilm);
+      this._popupComponent.updateComments(comments);
+      this._popupCommentsComponent.reset(comments, updatedFilm)
     }
 
-    if (this._topRatedFilmsId.has(updatedFilm.id)) {
-      const prewTopRatedFilmCard = this._topRatedFilmsId.get(updatedFilm.id);
+    if (this._topRatedFilmsId.has(filmId)) {
+      const prewTopRatedFilmCard = this._topRatedFilmsId.get(filmId);
       this._renderFilmCard(prewTopRatedFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
       remove(prewTopRatedFilmCard);
-      this._topRatedFilmsId.set(updatedFilm.id, this._filmCardComponent);
+      this._topRatedFilmsId.set(filmId, this._filmCardComponent);
     }
 
-    if (this._mostCommentedFilmsId.has(updatedFilm.id)) {
-      const prewMostCommentedFilmCard = this._mostCommentedFilmsId.get(updatedFilm.id);
+    if (this._mostCommentedFilmsId.has(filmId)) {
+      const prewMostCommentedFilmCard = this._mostCommentedFilmsId.get(filmId);
       this._renderFilmCard(prewMostCommentedFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
       remove(prewMostCommentedFilmCard);
-      this._mostCommentedFilmsId.set(updatedFilm.id, this._filmCardComponent);
+      this._mostCommentedFilmsId.set(filmId, this._filmCardComponent);
     }
   }
 

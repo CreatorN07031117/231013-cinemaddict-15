@@ -81,6 +81,7 @@ export default class PopupComments extends SmartView {
 
   getTemplate() {
     this._commentsElement = this._comments.map((comment) => commentTemplate(comment)).join('');
+    console.log(this._commentsElement)
     return createPopupComments(this._data, this._commentsElement);
   }
 
@@ -102,11 +103,6 @@ export default class PopupComments extends SmartView {
         comment: this.getElement().querySelector('.film-details__comment-input').value,
         emotion: this._data.emotion,
       };
-
-      /*this._comments = [...this._comments, userComment];
-      this.updateData(
-        { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
-      );*/
       
       this._callback.commentSubmit(userComment);
     }
@@ -123,18 +119,6 @@ export default class PopupComments extends SmartView {
     }
 
     evt.preventDefault();
-
-   /* const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
-
-    this._comments = [
-      ...this._comments.slice(0, indexComment),
-      ...this._comments.slice(indexComment + 1),
-    ];
-
-    this.getElement().scrollTop = this._data.currentPosition;
-    this.updateData(
-      { ...this._data, comments: this._comments},
-    );*/
 
     const deletedCommentId = evt.target.id;
     const currentPosition = this.getElement().scrollTop;
@@ -242,5 +226,4 @@ export default class PopupComments extends SmartView {
     delete data.isDeleting;
     return data;
   }
-
 }

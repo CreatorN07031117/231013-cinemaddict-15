@@ -28,8 +28,11 @@ export default class Popup extends AbstractView {
     this._filmDetails.updateData(film);
   }
 
-  updateComments(comments, film) {
-    this._filmDetails.updateData(comments, film);
+  updateComments(comments) {
+    const update = {
+      comments: comments,
+    }
+    this._comments.updateData(update);
   }
 
   removeElement() {

@@ -35,7 +35,7 @@ export default class Comments extends AbstractObserver {
       ...this._comments.slice(index + 1),
     ];
 
-    this._notify(updateType);
+    this._notify(updateType, update);
   }
 
   static adaptToClient(comment) {

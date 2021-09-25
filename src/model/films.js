@@ -37,7 +37,6 @@ export default class Films extends AbstractObserver {
       ...this._films.slice(index + 1),
     ];
 
-    console.log(update)
     this._notify(updateType, update);
   }
 
