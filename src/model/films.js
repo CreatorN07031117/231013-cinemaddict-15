@@ -73,7 +73,7 @@ export default class Films extends AbstractObserver {
       {},
       film,
       {
-        film_info: {
+        'film_info': {
           'title': film.title,
           'alternative_title': film.alternativeTitle,
           'total_rating': film.totalRating,
@@ -83,14 +83,14 @@ export default class Films extends AbstractObserver {
           'actors': film.actors,
           'runtime': film.runtime,
           'release': {
-                      'date': film.realese,
-                      'release_country': film.country,
-                     },
+            'date': film.realese,
+            'release_country': film.country,
+          },
           'genre': film.genres,
           'description': film.description,
           'age_rating': film.ageRating,
         },
-        user_details: {
+        'user_details': {
           'watchlist': film.watchlist,
           'already_watched': film.alreadyWatched,
           'watching_date': film.watchingDate,

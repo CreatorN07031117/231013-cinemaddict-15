@@ -69,6 +69,7 @@ export default class Board {
 
   init() {
     this._renderUserRank();
+    this._renderLoading();
   }
 
   _handleViewAction(actionType, updateType, update) {
@@ -78,12 +79,15 @@ export default class Board {
           this._popupCommentsComponent.setViewState(State.ADDING);
         }
         this._api.updateFilm(update)
-          .then((response) => this._filmsModel.updateFilm(updateType, response))
+          .then((response) => {
+            this._filmsModel.updateFilm(updateType, response);
+            this._updateUserRank();
+          })
           .catch(() => {
             if (this._popupCommentsComponent) {
               this._popupCommentsComponent.setViewState(State.ABORTING);
             }
-          })
+          });
         break;
       case UserAction.ADD_COMMENT:
         this._popupCommentsComponent.setViewState(State.ADDING);
@@ -95,18 +99,20 @@ export default class Board {
           .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
         break;
       case UserAction.DELETE_COMMENT:
+        this._popupCommentsComponent.setViewState(State.DELETING);
         this._api.deleteComment(update)
-        .then(() => {
-          this._commentsModel.deleteComments(updateType, update);
-          this._filmsModel.updateFilm(
-            updateType,
-            Object.assign(
+          .then(() => {
+            this._commentsModel.deleteComments(updateType, update);
+            this._filmsModel.updateFilm(
+              updateType,
+              Object.assign(
                 {},
                 this._filmsModel.getFilm(update.id),
                 {
-                  comments: this._commentsModel.getComments().map((item) => item.id),
-                }))
-        });
+                  comments: this._commentsModel.map((item) => item.id),
+                }));
+          })
+          .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
         break;
     }
   }
@@ -114,7 +120,6 @@ export default class Board {
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.MINOR:
-        console.log(data);
         this._handleFilmPropertyChange(data);
         this._updateUserRank();
         break;
@@ -150,7 +155,7 @@ export default class Board {
   }
 
   _renderLoading() {
-    render(this._mainBlock, this._loadingComponent, RenderPosition.AFTERBEGIN);
+    render(this._mainBlock, this._loadingComponent, RenderPosition.BEFOREEND);
   }
 
   _renderEmptyListMessage() {
@@ -213,9 +218,9 @@ export default class Board {
       UserAction.DELETE_COMMENT,
       UpdateType.MINOR,
       {
-        id: this._film.id, 
-        commentId ,
-      })
+        id: this._film.id,
+        commentId,
+      });
   }
 
 
@@ -264,8 +269,8 @@ export default class Board {
 
   _handleAlreadyWatchedClick(film) {
     const updatedFilm = Object.assign(
-      {}, 
-      film , 
+      {},
+      film,
       {
         alreadyWatched: !film.alreadyWatched,
         watchingDate: dayjs(),
@@ -285,7 +290,6 @@ export default class Board {
 
 
   _handleFilmPropertyChange(updatedFilm) {
-    console.log(updatedFilm)
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
@@ -323,12 +327,17 @@ export default class Board {
 
   _renderFilmList() {
     const filmsCount = this._getFilms().length;
-    const films = this._getFilms().slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
 
-    this._renderFilms(films);
+    if(filmsCount === 0) {
+      this._renderEmptyListMessage();
+    } else {
+      const films = this._getFilms().slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
+      this._updateUserRank();
+      this._renderFilms(films);
 
-    if (this._getFilms().length > FILM_COUNT_PER_STEP) {
-      this._renderShowMoreButton();
+      if (this._getFilms().length > FILM_COUNT_PER_STEP) {
+        this._renderShowMoreButton();
+      }
     }
   }
 

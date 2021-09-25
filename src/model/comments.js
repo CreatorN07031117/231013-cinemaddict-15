@@ -24,8 +24,6 @@ export default class Comments extends AbstractObserver {
   }
 
   deleteComments(updateType, update) {
-    console.log(this._comments)
-    console.log(update)
     const index = this._comments.findIndex((comment) => comment.id === update.commentId);
 
     if (index === -1) {

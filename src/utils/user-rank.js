@@ -2,13 +2,13 @@ import {MaxFilmsUserRank} from './const.js';
 
 
 export const pickUserRank = (films) => {
-  const alreadyWatchedFilms = films.filter((film) => film.alreadyWatched.length);
+  const alreadyWatchedFilms = films.filter((film) => film.alreadyWatched);
 
-  if(alreadyWatchedFilms === MaxFilmsUserRank.NO_RATING) {
+  if(alreadyWatchedFilms.length === MaxFilmsUserRank.NO_RATING) {
     return '';
-  } else if(alreadyWatchedFilms <= MaxFilmsUserRank.NOVICE) {
+  } else if(alreadyWatchedFilms.length <= MaxFilmsUserRank.NOVICE) {
     return 'novice';
-  } else if(alreadyWatchedFilms <= MaxFilmsUserRank.FAN) {
+  } else if(alreadyWatchedFilms.length <= MaxFilmsUserRank.FAN) {
     return 'fan';
   } else{
     return 'movie buff';

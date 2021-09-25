@@ -89,7 +89,6 @@ export default class PopupComments extends SmartView {
     this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._commentEmotionChangeHandler);
   }
 
-  //Отправка формы
   _formSubmitHandler(evt) {
     if (evt.key === 'Enter' && evt.ctrlKey) {
       evt.preventDefault();
@@ -113,7 +112,6 @@ export default class PopupComments extends SmartView {
     this.getElement().querySelector('.film-details__comments-wrap').addEventListener('keydown', this._formSubmitHandler);
   }
 
-  // Удаление коммента
   _commentDeleteClickHandler(evt) {
     if (evt.target.tagName !== 'BUTTON') {
       return;
@@ -121,21 +119,20 @@ export default class PopupComments extends SmartView {
 
     evt.preventDefault();
 
-    /*const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
+    const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
 
     this._comments = [
       ...this._comments.slice(0, indexComment),
       ...this._comments.slice(indexComment + 1),
     ];
 
-    
     this.getElement().scrollTop = this._data.currentPosition;
     this.updateData(
       { ...this._data, comments: this._comments},
-    );*/
+    );
     const deletedCommentId = evt.target.id;
-    this._callback.commentDeleteClick(deletedCommentId);
     const currentPosition = this.getElement().scrollTop;
+    this._callback.commentDeleteClick(deletedCommentId);
     this.getElement().scrollTo(0, currentPosition);
   }
 
@@ -145,7 +142,6 @@ export default class PopupComments extends SmartView {
       deleteButton.addEventListener('click', this._commentDeleteClickHandler));
   }
 
-  //Поле ввода
   _commentTextInputHandler(evt) {
     evt.preventDefault();
     this.updateData({
@@ -182,7 +178,7 @@ export default class PopupComments extends SmartView {
     const resetFormState = () => {
       this.updateData({
         isDisabled: false,
-        isDeleting: false
+        isDeleting: false,
       });
     };
 
@@ -190,11 +186,10 @@ export default class PopupComments extends SmartView {
       case State.ADDING:
       case State.DELETING:
         this.updateData(
-            {
-              isDisabled: true,
-              isDeleting: true
-            }
-        );
+          {
+            isDisabled: true,
+            isDeleting: true,
+          });
         break;
 
       case State.ABORTING:
@@ -203,7 +198,6 @@ export default class PopupComments extends SmartView {
     }
   }
 
-  //Входящие данные
   static parseFilmCommentsToData(commentsList, film) {
 
     const commentContent = film.comments.map((commentId) => commentsList.find((comment) => comment.id === commentId));
@@ -223,7 +217,6 @@ export default class PopupComments extends SmartView {
     );
   }
 
-  //Исходящие данные из комментария
   static parseDataToComments(data) {
     data = Object.assign({}, data);
 

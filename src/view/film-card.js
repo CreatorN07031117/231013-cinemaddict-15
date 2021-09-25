@@ -1,8 +1,11 @@
 import dayjs from 'dayjs';
 import AbstractView from './abstract.js';
+import {getDurationHours, getDurationMinutes} from '../utils/format-time.js';
 
 const createFilmCardTemplate = (film) => {
   const releaseYear = dayjs(film.realese).format('YYYY');
+  const hoursRuntime = getDurationHours(film.runtime);
+  const minutesRuntime = getDurationMinutes(film.runtime);
 
   let watchlistMark = '<button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>';
   if (film.watchlist) {
@@ -25,7 +28,7 @@ const createFilmCardTemplate = (film) => {
     <p class="film-card__rating">${film.totalRating}</p>
     <p class="film-card__info">
       <span class="film-card__year">${releaseYear}</span>
-      <span class="film-card__duration">${film.runtime}</span>
+      <span class="film-card__duration">${hoursRuntime}h ${minutesRuntime}m</span>
       <span class="film-card__genre">${film.genres[0]}</span>
     </p>
     <img src=${film.poster} alt="" class="film-card__poster">

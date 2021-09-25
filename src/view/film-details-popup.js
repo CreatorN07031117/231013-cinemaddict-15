@@ -1,11 +1,15 @@
 import dayjs from 'dayjs';
 import SmartView from './smart.js';
+import {getDurationHours, getDurationMinutes} from '../utils/format-time.js';
+
 
 const createFilmsDetailsPopup = (film) => {
   const genresList = film.genres;
   const genreContent = genresList
     .map((item) => `<span class="film-details__genre">${item}</span>`)
     .join('');
+  const hoursRuntime = getDurationHours(film.runtime);
+  const minutesRuntime = getDurationMinutes(film.runtime);
 
   const releaseDate = dayjs(film.realese).format('D MMMM YYYY');
   let watchlistMark = '<button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>';
@@ -28,7 +32,7 @@ const createFilmsDetailsPopup = (film) => {
           <div class="film-details__poster">
             <img class="film-details__poster-img" src=${film.poster} alt="">
 
-            <p class="film-details__age">${film.ageRating}</p>
+            <p class="film-details__age">${film.ageRating}+</p>
           </div>
           <div class="film-details__info">
             <div class="film-details__info-head">
@@ -59,7 +63,7 @@ const createFilmsDetailsPopup = (film) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${film.runtime}</td>
+                <td class="film-details__cell">${hoursRuntime}h ${minutesRuntime}m</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
