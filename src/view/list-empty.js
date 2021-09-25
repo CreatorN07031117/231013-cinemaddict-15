@@ -24,6 +24,7 @@ export default class EmptyListMessage extends AbstractView {
   }
 
   getTemplate() {
+    console.log(this._data)
     return createEmptyListMessage(this._data);
   }
 }

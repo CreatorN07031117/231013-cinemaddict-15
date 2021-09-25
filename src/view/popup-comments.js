@@ -29,7 +29,7 @@ const commentTemplate = (comment, isDisabled, isDeleting) => {
 };
 
 
-const createPopupComments = (data, commentsElement) => `<div class="film-details__bottom-container">
+const createPopupComments = (data, commentsElement, isDisabled) => `<div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
       <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${data.comments.length}</span></h3>
       <ul class="film-details__comments-list">
@@ -38,7 +38,7 @@ const createPopupComments = (data, commentsElement) => `<div class="film-details
       <div class="film-details__new-comment">
       <div class="film-details__add-emoji-label">${data.emotion ? `<img src="images/emoji/${data.emotion}.png" width="55" height="55" alt="emoji-${data.emotion}">` : ''}</div>
       <label class="film-details__comment-label">
-        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${he.encode(data.newComment)}</textarea>
+        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}>${he.encode(data.newComment)}</textarea>
       </label>
         <div class="film-details__emoji-list">
           <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
@@ -91,6 +91,11 @@ export default class PopupComments extends SmartView {
 
   _formSubmitHandler(evt) {
     if (evt.key === 'Enter' && evt.ctrlKey) {
+
+      if (this._data.newComment === '' || this._data.emotion === null) {
+        return;
+      }
+
       evt.preventDefault();
 
       const userComment = {
@@ -98,12 +103,12 @@ export default class PopupComments extends SmartView {
         emotion: this._data.emotion,
       };
 
-      this._comments = [...this._comments, userComment];
+      /*this._comments = [...this._comments, userComment];
       this.updateData(
         { ...this._data, comments: this._comments, currentPosition: this.getElement().scrollTop },
-      );
-
-      this._callback.commentSubmit(PopupComments.parseDataToComments(this._data));
+      );*/
+      
+      this._callback.commentSubmit(userComment);
     }
   }
 
@@ -119,7 +124,7 @@ export default class PopupComments extends SmartView {
 
     evt.preventDefault();
 
-    const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
+   /* const indexComment = this._comments.findIndex((comment) => String(comment.id) === evt.target.id);
 
     this._comments = [
       ...this._comments.slice(0, indexComment),
@@ -129,7 +134,8 @@ export default class PopupComments extends SmartView {
     this.getElement().scrollTop = this._data.currentPosition;
     this.updateData(
       { ...this._data, comments: this._comments},
-    );
+    );*/
+
     const deletedCommentId = evt.target.id;
     const currentPosition = this.getElement().scrollTop;
     this._callback.commentDeleteClick(deletedCommentId);
@@ -236,4 +242,5 @@ export default class PopupComments extends SmartView {
     delete data.isDeleting;
     return data;
   }
+
 }

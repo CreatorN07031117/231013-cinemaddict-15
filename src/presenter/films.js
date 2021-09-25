@@ -109,7 +109,7 @@ export default class Board {
                 {},
                 this._filmsModel.getFilm(update.id),
                 {
-                  comments: this._commentsModel.map((item) => item.id),
+                  comments: this._commentsModel.getComments().map((item) => item.id),
                 }));
           })
           .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
@@ -117,15 +117,17 @@ export default class Board {
     }
   }
 
-  _handleModelEvent(updateType, data) {
+  _handleModelEvent(updateType, update) {
     switch (updateType) {
       case UpdateType.MINOR:
-        this._handleFilmPropertyChange(data);
+        console.log(update)
+        this._handleFilmPropertyChange(update);
         this._updateUserRank();
         break;
       case UpdateType.MAJOR:
         this._clearFilmList({resetRenderedTaskCount: true, resetSortType: true});
         this._renderFilmList();
+        this._updateUserRank();
         break;
       case UpdateType.INIT:
         this._isLoading = false;
@@ -159,8 +161,9 @@ export default class Board {
   }
 
   _renderEmptyListMessage() {
-    this._emptyListMessageComponent = new EmptyListMessageView(this._filterType);
-    render(this._mainBlock, this._emptyListMessageComponent, RenderPosition.BEFOREEND);
+    const filterType = this._filterModel.getFilter();
+    this._emptyListMessageComponent = new EmptyListMessageView(filterType);
+    render(this._filmListContainer, this._emptyListMessageComponent, RenderPosition.AFTERBEGIN);
   }
 
   _hidePopup() {
@@ -214,6 +217,7 @@ export default class Board {
 
   _handleCommentDeleteClick(update) {
     const commentId = update;
+
     this._handleViewAction(
       UserAction.DELETE_COMMENT,
       UpdateType.MINOR,
@@ -225,10 +229,11 @@ export default class Board {
 
 
   _handleCommentSubmit(update) {
-    const updatedComments = update.comments;
+    /*const updatedComments = update.comments;
     const commentsId = updatedComments.map((comment) => comment.id);
 
-    const newComment = update.comments[commentsId.length-1];
+    const newComment = update.comments[commentsId.length-1];*/
+    const newComment = update;
 
     this._handleViewAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
   }
@@ -262,8 +267,14 @@ export default class Board {
     const updatedFilm = Object.assign(
       {}, film , {watchlist: !film.watchlist},
     );
+    const filterType = this._filterModel.getFilter();
 
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
+    if(filterType === 'all') {
+      this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
+      return
+    }
+
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MAJOR, updatedFilm);
   }
 
 
@@ -276,8 +287,14 @@ export default class Board {
         watchingDate: dayjs(),
       },
     );
+    const filterType = this._filterModel.getFilter();
 
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
+    if(filterType === 'all') {
+      this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
+      return
+    }
+
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MAJOR, updatedFilm);
   }
 
 
@@ -285,7 +302,14 @@ export default class Board {
     const updatedFilm = Object.assign(
       {}, film , {favorite: !film.favorite},
     );
-    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
+    const filterType = this._filterModel.getFilter();
+
+    if(filterType === 'all') {
+      this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MINOR, updatedFilm);
+      return
+    }
+
+    this._handleViewAction(UserAction.UPDATE_FILMCARD, UpdateType.MAJOR, updatedFilm);
   }
 
 
@@ -296,6 +320,7 @@ export default class Board {
     this._filmsIdList.set(updatedFilm.id, this._filmCardComponent);
 
     if (this._openedFilmId === updatedFilm.id) {
+      
       this._popupComponent.updateFilmDetails(updatedFilm);
     }
 
@@ -328,24 +353,34 @@ export default class Board {
   _renderFilmList() {
     const filmsCount = this._getFilms().length;
 
-    if(filmsCount === 0) {
-      this._renderEmptyListMessage();
-    } else {
-      const films = this._getFilms().slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
-      this._updateUserRank();
-      this._renderFilms(films);
+    this._renderSort();
+    render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
 
-      if (this._getFilms().length > FILM_COUNT_PER_STEP) {
-        this._renderShowMoreButton();
-      }
+    if(filmsCount === 0) {
+      remove(this._siteSortComponent);
+      this._renderEmptyListMessage();
+      return
+    } 
+
+    if(this._emptyListMessage !== null) {
+      remove(this._emptyListMessageComponent);
     }
+
+    const films = this._getFilms().slice(0, Math.min(filmsCount, FILM_COUNT_PER_STEP));
+    this._updateUserRank();
+    this._renderFilms(films);
+
+    if (this._getFilms().length > FILM_COUNT_PER_STEP) {
+      this._renderShowMoreButton();
+    }
+    
   }
 
 
   _clearFilmList(resetRenderedFilmsCount = false, resetSortType = false) {
     this._filmsIdList.forEach((filmCard) => remove(filmCard));
     this._filmsIdList.clear();
-
+    remove(this._siteSortComponent);
     remove(this._showMoreBtnComponent);
 
     if (resetRenderedFilmsCount) {
@@ -433,7 +468,7 @@ export default class Board {
   }
 
   _renderUserRank() {
-    const films = this._getFilms();
+    const films = this._filmsModel.getFilms();
 
     this._userRankView = new UserRankView(films);
     render(this._headerBlock, this._userRankView, RenderPosition.BEFOREEND);
@@ -456,13 +491,17 @@ export default class Board {
   }
 
   _renderFilmsBoard() {
+    const filmsCount = this._getFilms().length;
+
+    if(filmsCount === 0) {
+      this._renderEmptyListMessage();
+      return
+    } 
 
     if(this._emptyListMessage !== null) {
       remove(this._emptyListMessageComponent);
     }
 
-    this._renderSort();
-    render(this._mainBlock, this._sectionFilmsComponent, RenderPosition.BEFOREEND);
     this._renderFilmList();
 
 
