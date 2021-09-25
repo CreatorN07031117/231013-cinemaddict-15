@@ -113,6 +113,8 @@ export default class Board {
                 }));
           })
           .catch(() => this._popupCommentsComponent.setViewState(State.ABORTING));
+          console.log(this._filmsModel.getFilm(update.id))
+          console.log(this._filmsModel)
         break;
     }
   }
@@ -120,7 +122,6 @@ export default class Board {
   _handleModelEvent(updateType, update) {
     switch (updateType) {
       case UpdateType.MINOR:
-        console.log(update)
         this._handleFilmPropertyChange(update);
         this._updateUserRank();
         break;
@@ -314,6 +315,7 @@ export default class Board {
 
 
   _handleFilmPropertyChange(updatedFilm) {
+    console.log(updatedFilm)
     const prevFilmCard = this._filmsIdList.get(updatedFilm.id);
     this._renderFilmCard(prevFilmCard, updatedFilm, this._getComments(), RenderPosition.AFTEREND);
     remove(prevFilmCard);
