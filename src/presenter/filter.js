@@ -87,7 +87,6 @@ export default class FilterMenu {
       },
       {
         type: FilterType.WATCHLIST,
-        name: 'Watchlist',
         count: Filter[FilterType.WATCHLIST](films).length,
       },
       {
