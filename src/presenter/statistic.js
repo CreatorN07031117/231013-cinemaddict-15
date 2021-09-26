@@ -1,7 +1,7 @@
 import StatisticView from '../view/statistic.js';
 import {getDurationHours, getDurationMinutes} from '../utils/format-time.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
-import {StatsType} from '../utils/const.js';
+import {StatsType, TimeAgoDate} from '../utils/const.js';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import {pickUserRank} from '../utils/user-rank.js';
@@ -22,9 +22,9 @@ export default class StatisticPresenter {
 
   _getFilmsDataByFilter(films, currentFilter) {
     const currentDate = new Date();
-    const weekAgoDate = dayjs().subtract(7, 'day').toDate();
-    const monthAgoDate = dayjs().subtract(1, 'month').toDate();
-    const yearAgoDate = dayjs().subtract(1, 'year').toDate();
+    const weekAgoDate = dayjs().subtract(TimeAgoDate.WEEK, 'day').toDate();
+    const monthAgoDate = dayjs().subtract(TimeAgoDate.MONTH, 'month').toDate();
+    const yearAgoDate = dayjs().subtract(TimeAgoDate.YEAR, 'year').toDate();
     let filmsWatched = [];
 
     switch (currentFilter) {

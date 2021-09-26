@@ -90,7 +90,7 @@ const createFilmsDetailsPopup = (film) => {
 };
 
 
-export default class FilmDetail extends SmartView  {
+export default class PopupFilmDetails extends SmartView  {
   constructor(film) {
     super();
 

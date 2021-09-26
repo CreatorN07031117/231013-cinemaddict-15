@@ -19,7 +19,7 @@ export const UpdateType = {
 
 export const FilterType = {
   ALL: 'all',
-  WHATCHLIST: 'whatchlist',
+  WATCHLIST: 'watchlist',
   HISTORY: 'history',
   FAVORITES: 'favorites',
 };
@@ -61,4 +61,14 @@ export const RequestMethod = {
 export const SuccessHTTPStatusRange = {
   MIN: 200,
   MAX: 299,
+};
+
+export const MINUTES_IN_HOUR = 60;
+
+export const RECENTLY_IN_DAYS = 3;
+
+export const TimeAgoDate = {
+  WEEK: 7,
+  MONTH: 1,
+  YEAR: 1,
 };

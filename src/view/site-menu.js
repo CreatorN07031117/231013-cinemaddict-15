@@ -25,7 +25,7 @@ export default class SiteMenu extends AbstractView {
     if(evt.target.getAttribute('data-filter') === 'stats') {
       evt.preventDefault();
 
-      this.getElement().querySelector('.main-navigation__item').classList.remove('main-navigation__item--active');
+      this.getElement().querySelector('.main-navigation__item--active').classList.remove('main-navigation__item--active');
       evt.target.classList.add('main-navigation__item--active');
       this.getElement().removeEventListener('click', this._clickStatsHandler);
       this._callback.clickStats(evt.target);

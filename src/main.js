@@ -1,4 +1,4 @@
-import FooterStaticticsView from './view/site-footer-statistic.js';
+import FilmsOnSiteView from './view/films-on-site.js';
 import FilmsPresenter from './presenter/films.js';
 import FilterMenuPresenter from './presenter/filter.js';
 import {render, RenderPosition} from './utils/render.js';
@@ -23,7 +23,7 @@ const filterMenuPresenter = new FilterMenuPresenter(siteMainElement, filterModel
 api.getFilms()
   .then((films) => {
     filmsModel.setFilms(UpdateType.INIT, films);
-    render(siteFooterElement, new FooterStaticticsView(filmsModel.filmsCount), RenderPosition.BEFOREEND);
+    render(siteFooterElement, new FilmsOnSiteView(filmsModel.filmsCount), RenderPosition.BEFOREEND);
   })
   .catch(() => {
     filmsModel.setFilms(UpdateType.INIT, []);

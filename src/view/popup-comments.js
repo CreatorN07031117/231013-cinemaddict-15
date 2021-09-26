@@ -104,7 +104,7 @@ export default class PopupComments extends SmartView {
       evt.preventDefault();
 
       const userComment = {
-        comment: this.getElement().querySelector('.film-details__comment-input').value,
+        comment: he.encode(this.getElement().querySelector('.film-details__comment-input').value),
         emotion: this._data.emotion,
       };
 
@@ -139,7 +139,7 @@ export default class PopupComments extends SmartView {
   _commentTextInputHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      newComment: evt.target.value,
+      newComment: he.encode(evt.target.value),
     }, true);
   }
 
@@ -189,25 +189,5 @@ export default class PopupComments extends SmartView {
         deletedCommentId: '',
       },
     );
-  }
-
-  static parseDataToComments(data) {
-    data = Object.assign({}, data);
-
-    if (!data.newComment) {
-      data.newComment = '';
-    }
-
-    if (!data.emotion) {
-      data.emotion = null;
-    }
-
-    delete data.newComment;
-    delete data.emotion;
-    delete data.disabled;
-    delete data.deleting;
-    delete data.deletedCommentId;
-
-    return data;
   }
 }

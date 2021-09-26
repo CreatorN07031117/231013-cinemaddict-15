@@ -63,7 +63,7 @@ export default class FilterMenu {
   _handleFiltersClick() {
     this._statisticPresenter.destroy();
     this._filmPresenter.destroy();
-    this._filmPresenter._renderFilmsBoard();
+    this._filmPresenter.renderFilmsBoard();
     this._siteMenuComponent.setClickStatsHandler(this._handleStats);
   }
 
@@ -75,6 +75,7 @@ export default class FilterMenu {
     this._filterModel.setFilter(UpdateType.MAJOR, filterType);
   }
 
+
   _getFilters() {
     const films = this._filmsModel.getFilms();
 
@@ -85,9 +86,9 @@ export default class FilterMenu {
         count: Filter[FilterType.ALL](films).length,
       },
       {
-        type: FilterType.WHATCHLIST,
-        name: 'Whatchlist',
-        count: Filter[FilterType.WHATCHLIST](films).length,
+        type: FilterType.WATCHLIST,
+        name: 'Watchlist',
+        count: Filter[FilterType.WATCHLIST](films).length,
       },
       {
         type: FilterType.HISTORY,
