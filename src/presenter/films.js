@@ -355,12 +355,11 @@ export default class Board {
 
 
   _handleFilmPropertyChange(filmId) {
-
-    const prevFilmCard = this._filmsIdList.get(filmId);
     const updatedFilm = this._filmsModel.getFilm(filmId);
 
     if (this._topRatedFilmsId.has(filmId)) {
       const prewTopRatedFilmCard = this._topRatedFilmsId.get(filmId);
+
       this._renderFilmCard(prewTopRatedFilmCard, updatedFilm, RenderPosition.AFTEREND);
       remove(prewTopRatedFilmCard);
       this._topRatedFilmsId.set(filmId, this._filmCardComponent);
@@ -373,7 +372,7 @@ export default class Board {
       this._mostCommentedFilmsId.set(filmId, this._filmCardComponent);
     }
 
-
+    const prevFilmCard = this._filmsIdList.get(filmId);
     this._renderFilmCard(prevFilmCard, updatedFilm, RenderPosition.AFTEREND);
     remove(prevFilmCard);
     this._filmsIdList.set(filmId, this._filmCardComponent);

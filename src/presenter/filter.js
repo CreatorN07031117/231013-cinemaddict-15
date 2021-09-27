@@ -36,7 +36,6 @@ export default class FilterMenu {
 
     render(this._mainBlock, this._siteMenuComponent, RenderPosition.AFTERBEGIN);
     this._siteMenuComponent.setClickStatsHandler(this._handleStats);
-    this._filterContainer = this._siteMenuComponent.getElement();
 
     this._filterComponent = new FilmsFilterView(filters, this._currentFilter);
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
